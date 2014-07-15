@@ -1,0 +1,40 @@
+'scopeName': 'source.soy'
+'name': 'Soy Template'
+'fileTypes': [
+  'soy'
+]
+'patterns': [
+  {
+    'begin': '/\\*'
+    'name': 'comment.block.js'
+    'patterns': [
+      {
+        'match': '(@param)\\s+(\\w+)'
+        'captures': {
+          '1': 'name': 'storage.modifier.js'
+          '2': 'name': 'variable.parameter.function.js'
+        }
+      }
+    ]
+    'end': '\\*/'
+  }
+  {
+    'begin': '{(template) \\.((?!}).+)}'
+    'beginCaptures': {
+      '1': 'name': 'storage.type.function.js'
+      '2': 'name': 'entity.name.function.js'
+    }
+    'name': 'template.content.soy'
+    'patterns': [
+      {
+        'include': 'text.html.basic'
+      }
+    ]
+    'end': '{/(template)}'
+    'endCaptures': {
+      '1': {
+        'name': 'storage.type.function.js'
+      }
+    }
+  }
+]

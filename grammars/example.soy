@@ -1,0 +1,1682 @@
+{namespace Templates.htmlEditor}
+
+/**
+ * HTML Editor Setup
+ */
+{template .Setup}
+<div class="he_canvas css-base" data-intro='Canvas: Edit, Copy, Drag and Delete your content here.' data-step='3' data-position='top'></div>
+{/template}
+
+/**
+ * Sidebar Template
+ * @param zones The list of zones for the Zones tab
+ * @param type The type of content ( template | message )
+ * @param messageType MailMessage, LandingPage, or Template
+ * @param basePerms The base user permissions (not contextual)
+ * @param permissions The contextual permissions for the user
+ */
+{template .Sidebar}
+<div id="htmleditor-sidebar" class="nav-sidebar">
+	<div class="htmleditor-topbar">
+		<ul class="tabNav" >
+			<li data-target="sidebar-menu" data-intro='Here are the 3 tabs containing the tools you will need to create your messages &amp; template: ' data-step='1' data-position='right'>Menu</li>
+			<li data-target="sidebar-zones">Zones</li>
+			<li data-target="sidebar-design">Design</li>
+			<li data-target="sidebar-code">Code Guide</li>
+			{if $messageType == 'MailMessage'}<li data-target="sidebar-mobile">Mobile Guide</li>{/if}
+		</ul>
+
+		<div class="he_hide"></div>
+		<div class="he-settings"><span data-intro='Utilities: Here you can switch views between your HTML, Text, Mobile &amp; code versions.  You also have buttons to redo and undo your changes and a settings menu for additional options.' data-step='2' data-position='left'></span></div>
+		<div class="he-settings-menu">
+			/*<ul>
+				<li>*/
+					<ul class="sub-menu">
+						<li class="save-template">Save Changes</li>
+						{if $basePerms.Templates == 'Admin'}
+							{if $type == 'message'}
+								{if $messageType == 'MailMessage'}
+									<li class="new-template">Save Message as Template</li>
+								{elseif $messageType == 'LandingPage'}
+									<li class="new-template">Save Page as Template</li>
+								{/if}
+							{else}
+								<li id="menu_publish">Publish</li>
+								<li class="new-template">Save as New Template...</li>
+							{/if}
+						{/if}
+						<li class="settings-divider">Utilities</li>
+						{if $type == 'message'}
+							<li class="link-labels">Enhanced Link Labels</li>
+						{else}
+							<li id="menu_restrict_toggle" class="not-open">Bypass and Edit Restrictions</li>
+							<li id="menu_revert">Revert to Last Published</li>
+						{/if}
+					</ul>
+				/*</li>
+				<!--<li>
+					<span>More Stuff</span>
+					<ul class="sub-menu">
+						<li>Manage Dynamic Content</li>
+						{if $type == 'message'}<li class="test-deliverability">Send Deliverability Test</li>{/if}
+					</ul>
+				</li>-->
+			<ul>*/
+		</div>
+		<button type="button" class="he_redo">Redo</button>
+		<button type="button" class="he_undo">Undo</button>
+		<select class="he-views">
+			<option selected="selected" value="">HTML Version</option>
+			{if $permissions.CodeView}
+				<option value="code">Code Version</option>
+			{/if}
+			{if $type == 'message' and $messageType == 'MailMessage'}
+				<option value="text">Text Version</option>
+				<option value="mobile">Mobile Web Version</option>
+			{/if}
+		</select>
+	</div>
+	<div class="htmleditor-sidebar-tabs">
+		<div class="tab" id="sidebar-menu"></div>
+		<div class="tab" id="sidebar-zones">
+			{call .ZoneRestrictions /}
+			<div class="user-def">
+				<h3>Zones</h3>
+				<div>
+					<ul class="public-zones zone-list">
+						{foreach $zone in $zones}
+							{call .SingleZone}
+								{param zone: $zone /}
+								{param index: index($zone) /}
+								{param custom: false /}
+							{/call}
+						{/foreach}
+					</ul>
+				</div>
+			</div>
+			<!-- user zones are injected here -->
+		</div>
+		<div class="tab" id="sidebar-design">
+			<h3>Background Colors</h3>
+			<div class="tab-section zone-design">
+				<h3 class="editing-only">Zone Styles</h3>
+				<div class="section-styles editing-only section-size tab-sub-section">
+					<label>Width</label>
+					<input type="text" class="spinner high-nums" name="width" min="0" />
+					<button class="ok btn secondary-btn">OK</button>
+				</div>
+				<div class="section-styles editing-only section-border tab-sub-section">
+					<label>Borders</label>
+					<div class="border-combo-editor"></div>
+				</div>
+				<div class="section-styles editing-only section-padding tab-sub-section">
+					<label>Padding</label>
+					<span class="iterator all-styles"><input class="spinner" name="paddingall" min="0" max="100"/></span>
+					<div class="horizontal-group">
+						<label class="slidetoggle">
+							<input type="checkbox" id="side-padding"/>
+							<span class="label-text">Apply side-specific padding</span>
+						</label>
+					</div>
+					<div class="zone-styles-ind">
+						<span class="mini_field"><label>Top</label><span class="iterator"><input class="spinner" name="top" min="0" max="100"/></span></span>
+						<span class="mini_field"><label>Right</label><span class="iterator"><input class="spinner" name="right" min="0" max="100"/></span></span>
+						<span class="mini_field"><label>Bottom</label><span class="iterator"><input class="spinner" name="bottom" min="0" max="100"/></span></span>
+						<span class="mini_field"><label>Left</label><span class="iterator"><input class="spinner" name="left" min="0" max="100"/></span></span>
+					</div>
+				</div>
+				<div class="section-styles editing-only section-padding tab-sub-section">
+					<button class="sidebar-parent-selector editing-only btn secondary-btn">Select Parent</button>
+				</div>
+			</div>
+		</div>
+		<div class="tab" id="sidebar-code">
+			<h3>General Rules</h3>
+			<ul>
+				<li>Templates do not auto-save because they html would be invalid at the time of most saves.  Be sure to save the template through the settings menu on the right.</li>
+				<li>the message container needs to be a div and  have class="he_stage" on the tag</li>
+				<li>all content needs to be in tds</li>
+				<li>if a section is editable, all of its parents need to be data-zones</li>
+			</ul>
+			<h3>Editable Sections</h3>
+			<ul>
+				<li>To create an editable, selectable and draggable zone, you need to add data-zone to the td ex. data-zone=”vertical container”
+					<ul>
+						<li class="sub-head"> Types of Zones</li>
+						<li>text - standard wysiwyg</li>
+						<li>horizontal container -  first child is a table, 1 row, as many cells as you want</li>
+						<li>vertical container - first child is a table, clones rows, each row has one cell</li>
+						<li>image - image only section</li>
+						<li>swyn</li>
+						<li>_placeholder - allows for any type of zone to be dragged in (also add class=”he_placeholder”)</li>
+					</ul>
+				</li>
+				<li>To create a text-only section, use the data-restrict attribute to restrict text-format. example: &lt;td align="left" valign="top" data-zone="text" data-restrict="text-format" &gt;</li>
+			</ul>
+		</div>
+		<div class="tab" id="sidebar-mobile">
+			<h3>What is a mobile web version?</h3>
+						<p>This feature allows you to create a web page of your message that is optimized for mobile viewing. Users access it by clicking the link at the top of the email. Mobile recipients will get the mobile-optimized version and recipients who click from a computer will get the PC-optimized version.  The width of this container is 320px wide, which is the width of an iPhone in portrait view.</p><img src="/art/html-editor/mobile-ex.png" alt="mobile example"/>
+			<h3>How do I enable the link?</h3>
+			<p>After creating your mobile web version, don't forget to customize the language of your web version link in Tools > Message Tools > Manage Web Version. Click here to view mobile web version tutorial.</p>
+		</div>
+	</div>
+</div>
+{/template}
+
+/**
+ * User Zones
+ * @param userzones
+ * @param permissions
+ */
+{template .UserZones}
+<div class="user-def">
+	<h3>Custom Zones</h3>
+	<div>
+		<ul class="private-zones zone-list">
+			{foreach $zone in $userzones}
+				{call .SingleZone}
+					{param zone: $zone /}
+					{param index: index($zone) /}
+					{param custom: true /}
+				{/call}
+			{/foreach}
+		</ul>
+		{if $permissions.UserContent != 'Restricted'}<button type="button" class="add editing-only">+ Add new zone</button>{/if}
+	</div>
+</div>
+{/template}
+
+/**
+ * Save as new template window
+ * @param name the old template name
+ */
+{template .SaveNewTemplate}
+<div class="save-new-template">
+	<h4>Save New Template</h4>
+	<form class="styled-form">
+		<label for="save_new_name">Template Name</label>
+		<input type="text" name="save_new_name" id="save_new_name" value="{$name} Copy" class="input-full"/>
+		<div class="primary-btn">
+			<input type="button" value="Cancel" class="cancel btn btn-n"/>
+			<input type="submit" value="Save New" class="btn btn-y" />
+		</div>
+	</form>
+	<div class="he-dialog-x"></div>
+</div>
+{/template}
+
+/**
+ * Border Editor
+ * A single reusable border editor for other templates
+ * @param color
+ * @param style
+ * @param width
+ * @param direction
+ */
+{template .BorderEditor}
+<div class="border-editor {if $direction == null}all-styles{/if}" data-direction="{if $direction}{$direction}{else}all{/if}">
+	{if $direction}<label>{$direction}</label>{/if}
+	<input type="text" min="0" name="borderwidth" max="8" value="{$width}" class="spinner" />
+	<select name="borderstyle" class="borderweight" type="text">
+		<option{if $style == 'none'} selected="selected"{/if}>none</option>
+		<option{if $style == 'solid'} selected="selected"{/if}>solid</option>
+		<option{if $style == 'dotted'} selected="selected"{/if}>dotted</option>
+		<option{if $style == 'dashed'} selected="selected"{/if}>dashed</option>
+	</select>
+	<div class="colorselect bordercolor">{$color}</div>
+</div>
+{/template}
+
+/**
+ * A border editor with shared/individual border styles.
+ * @param top the top and also used for the global border style
+ * @param right
+ * @param bottom
+ * @param left
+ */
+{template .BordersCombo}
+<div class="border-combo-editor">
+	{call .BorderEditor}
+		{param color: $top.color /}
+		{param style: $top.style /}
+		{param width: $top.width /}
+		{param direction: null /}
+	{/call}
+	<div class="horizontal-group">
+		<label class="slidetoggle"><input type="checkbox" id="side-borders"/><span class="label-text">Apply side-specific borders</span></label>
+	</div>
+	<div class="borders-combo-ind zone-styles-ind">
+		{call .BorderEditor}
+			{param color: $top.color /}
+			{param style: $top.style /}
+			{param width: $top.width /}
+			{param direction: 'top' /}
+		{/call}
+		{call .BorderEditor}
+			{param color: $right.color /}
+			{param style: $right.style /}
+			{param width: $right.width /}
+			{param direction: 'right' /}
+		{/call}
+		{call .BorderEditor}
+			{param color: $bottom.color /}
+			{param style: $bottom.style /}
+			{param width: $bottom.width /}
+			{param direction: 'bottom' /}
+		{/call}
+		{call .BorderEditor}
+			{param color: $left.color /}
+			{param style: $left.style /}
+			{param width: $left.width /}
+			{param direction: 'left' /}
+		{/call}
+	</div>
+</div>
+{/template}
+
+/**
+ * Themes Module Sidebar
+ * @param user The user properties object
+ * @param themes An map of id->themes
+ * @param current The ID of the selected theme
+ */
+{template .ThemesModule}
+<div class="themesmodule clearfix">
+	<div class="themeselector tab-sub-section">
+		<label>Current Theme</label>
+		<select name="theme">
+			{foreach $theme in $themes}
+			<option value="{$theme.id}" data-colors="{foreach $color in $theme.colors}{$color.value}{sp}{/foreach}" {if $theme.editable}data-edit="true"{/if} {if $theme.id==$current}selected="selected"{/if}>{$theme.name}</option>
+			{/foreach}
+		</select>
+		{if $user.createTheme}<button type="button" class="add addtheme">+ Add new theme</button>{/if}
+	</div>
+	<div class="backgroundselector tab-sub-section"></div>
+	{if $user.templateAdmin and $user.editingTemplate}
+		<div class="toggle-theme-lock">
+			<label for="theme_lock"><input type="checkbox" id="theme_lock" name="theme-lock" {if $user.lockedThemes}checked="checked"{/if} /><span class="label-text">Lock Template Themes</span></label>
+		</div>
+	{/if}
+</div>
+{/template}
+
+/**
+ * Theme Background Colors Section
+ * @param theme the current theme object
+ * @param current the ID of the selected theme
+ */
+{template .ThemeBackground}
+<label class="editing-only single-color">Section Background Color</label>
+<label class="not-editing single-color">Body Background Color</label>
+<select name="bgcolor">
+	<option value="0" data-color="" {if isNonnull($current)}selected="selected"{/if}>None</option>
+	{if isNonnull($theme) and isNonnull($theme.colors)}
+		{foreach $color in $theme.colors}
+		{if $color.value != 'transparent' and $color.value != '' and $color.value != 'none'}
+		<option value="{index($color) + 1}" data-color="{$color.value}" {if (index($color) + 1)==$current}selected="selected"{/if}>{$color.name}</option>
+		{/if}
+		{/foreach}
+	{/if}
+</select>
+{/template}
+
+/**
+ * Manage Themes
+ * @param theme A theme and array of colors
+ * @param saveNew boolean for whether to "save as new"
+ */
+{template .ConfigThemes}
+<div class="manage-themes {if $saveNew}new-theme{/if} {if $theme.editable}editable{/if}">
+	<h4>Manage Themes</h4>
+	<form class="styled-form">
+		<ul class="errors-list"></ul>
+		<h5>Background Colors</h5>
+		{foreach $color in $theme.colors}
+		{call .ConfigColor}
+			{param color: $color /}
+			{param index: index($color) /}
+		{/call}
+		{/foreach}
+		<h5 class="theme-settings-head">Theme Settings</h5>
+		<label class="manage-themes-item is-new-theme">
+			<input type="checkbox" class="is-new-theme" name="is-new-theme" {if $saveNew}checked="checked"{/if}/><span class="label-text">Save as new theme</span>
+		</label>
+		<div class="manage-themes-item"><input type="text" class="new-theme" name="theme-name" placeholder="New Theme Name"/></div>
+		{if $theme.editable or $saveNew}<label class="manage-themes-item share-theme"><input type="checkbox" name="share-theme" {if $theme.shared}checked="checked"{/if}/> Share theme for this template</label>{/if}
+		<div class="primary-btn">
+			{if $theme.editable}<a href="#" class="cancel btn btn-n delete-item">Delete</a>{/if}
+			<input type="button" value="Cancel" class="cancel btn btn-n" name="cancel"/>
+			<input type="submit" value="Save" class="btn btn-y" />
+		</div>
+	</form>
+	<div class="he-dialog-x"></div>
+</div>
+{/template}
+
+/**
+ * Single color for theme management
+ * @param color the color with value and name
+ * @param index the index of the color in the theme
+ */
+{template .ConfigColor}
+<div class="theme-color" data-index="{$index}" name="colorbox">
+	<input type="text" class="color-name required-colors" name="color-{$index}" value="{if $color}{$color.name}{/if}" placeholder="Color Name"/>
+	<div class="colorselect-cont"><div class="colorselect">{if $color}{$color.value}{else}#FFFFFF{/if}</div></div>
+</div>
+{/template}
+
+/**
+ * Restrictions manager
+ */
+{template .ZoneRestrictions}
+<div class="manage-restrictions editing-only">
+	<h3>Zone Restrictions</h3>
+	<div>
+		<ul>
+			<li>
+				<label>
+					<input type="checkbox" name="restrict-all" value="all">
+					<div>
+						<h4>Disable</h4>
+						<span>Zone cannot be selected nor interacted with</span>
+					</div>
+				</label>
+			</li>
+			<li>
+				<label>
+					<input type="checkbox" name="restrict-delete" value="delete">
+					<div>
+						<h4>Delete</h4>
+						<span>Zone cannot be deleted</span>
+					</div>
+				</label>
+			</li>
+			<li>
+				<label>
+					<input type="checkbox" name="restrict-edit" value="edit">
+					<div>
+						<h4>Edit</h4>
+						<span>Zone cannot be edited</span>
+					</div>
+				</label>
+			</li>
+			<li>
+				<label>
+					<input type="checkbox" name="restrict-copy" value="copy">
+					<div>
+						<h4>Copy</h4>
+						<span>Zone cannot be copied</span>
+					</div>
+				</label>
+			</li>
+			<li>
+				<label>
+					<input type="checkbox" name="restrict-drag" value="drag">
+					<div>
+						<h4>Drag</h4>
+						<span>Zone cannot be dragged from its current location</span>
+					</div>
+				</label>
+			</li>
+			<li>
+				<label>
+					<input type="checkbox" name="restrict-drop" value="drop">
+					<div>
+						<h4>Drop</h4>
+						<span>Other zones cannot be dragged into this zone</span>
+					</div>
+				</label>
+			</li>
+			<li class="image-only">
+				<label>
+					<input type="checkbox" name="restrict-image-source" value="image-source">
+					<div>
+						<h4>Image Selection</h4>
+						<span>Users cannot select new image</span>
+					</div>
+				</label>
+			</li>
+			<li class="image-only">
+				<label>
+					<input type="checkbox" name="restrict-image-editor" value="image-editor">
+					<div>
+						<h4>Image Editor</h4>
+						<span>Disable image editor for this zone</span>
+					</div>
+				</label>
+			</li>
+			<li class="text-only">
+				<label>
+					<input type="checkbox" name="restrict-text-format" value="text-format">
+					<div>
+						<h4>Editor Bar</h4>
+						<span>Editor tool bar will be disabled for this zone</span>
+					</div>
+				</label>
+			</li>
+			<li class="text-only">
+				<label>
+					<input type="checkbox" name="restrict-text-font" value="text-font">
+					<div>
+						<h4>Font Selection</h4>
+						<span>Font type selection will be disabled for this zone</span>
+					</div>
+				</label>
+			</li>
+			<li class="text-only">
+				<label>
+					<input type="checkbox" name="restrict-text-size" value="text-size">
+					<div>
+						<h4>Font Size</h4>
+						<span>Font size selection will be disabled for this zone</span>
+					</div>
+				</label>
+			</li>
+			<li class="text-only">
+				<label>
+					<input type="checkbox" name="restrict-text-color" value="text-color">
+					<div>
+						<h4>Text Color</h4>
+						<span>Text color and background color will be disabled for this zone</span>
+					</div>
+				</label>
+			</li>
+			<li class="text-only">
+				<label>
+					<input type="checkbox" name="restrict-text-source" value="text-source">
+					<div>
+						<h4>HTML View</h4>
+						<span>HTML source view will be disabled for this zone</span>
+					</div>
+				</label>
+			</li>
+		</ul>
+	</div>
+</div>
+{/template}
+
+/**
+ * Single Zone Listing
+ * @param zone A single zone object
+ * @param index the index of the zone object
+ * @param custom true for user custom zones
+ */
+{template .SingleZone}
+<li class="he-zone" data-index="{if isNonnull($zone.id)}{$zone.id}{else}{$index}{/if}">
+	<img src="{$zone.icon}" height="44" width="44">
+	<div class="zone-desc-container">
+		<h4>{$zone.name}</h4>
+		<div class="he-zone-desc">{$zone.description}</div>
+	</div>
+	{if $custom == true and $zone.editable == true}<button class="edit-zone" title="Edit">Edit</button>{/if}
+</li>
+{/template}
+
+/**
+ * Placeholder Zone
+ */
+{template .Placeholder}
+<td valign="top" data-zone="_placeholder" class="he_placeholder"><div>drag a new section here</div></td>
+{/template}
+
+/**
+ * Empty Column Replacement
+ */
+{template .EmptyColumn}
+<td valign="top" data-zone="vertical container" class="he_nodrop">
+	<table width="100%" style="margin-bottom:0;" cellspacing="0" cellpadding="0">
+		<tr>{call .Placeholder data="all" /}</tr>
+	</table>
+</td>
+{/template}
+
+/**
+ * Blank Stage
+ */
+{template .BlankStage}
+<div style="background-color: rgb(255, 255, 255); min-height: 453px;" align="center" class="he_stage" data-theme="0">
+	<table style="width:650px;margin-bottom:0;" cellspacing="0" cellpadding="0">
+		<tbody><tr>
+			<td align="left" valign="top" data-zone="vertical container" class="he_nodrop" style="width: 650px;">
+				<table border="0" cellspacing="0" cellpadding="0" style="margin-bottom:0;" width="650px">
+					<tbody><tr>{call .Placeholder data="all" /}</tr></tbody>
+				</table>
+			</td>
+		</tr></tbody>
+	</table>
+</div>
+{/template}
+
+/**
+ * Single Style Selector Section
+ */
+{template .StyleSelector}
+<li>
+	<span class="style-display">Style Name</span>
+	<label>Font-Family</label>
+	<select>
+		<option>Arial, Helvetica Neue, Helvetica, sans-serif</option>
+		<option>Avant Garde, Avantgarde, Century Gothic, CenturyGothic, AppleGothic, sans-serif</option>
+		<option>Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif</option>
+		<option>Baskerville, Baskerville Old Face, Hoefler Text, Garamond, Times New Roman, serif</option>
+		<option>Book Antiqua, Palatino, Palatino Linotype, Palatino LT STD, Georgia, serif</option>
+		<option>Cambria, Georgia, serif</option>
+		<option>Consolas, monaco, monospace</option>
+		<option>Courier New, Courier, Lucida Sans Typewriter, Lucida Typewriter, monospace</option>
+		<option>Lucida Console, Lucida Sans Typewriter, Monaco, Bitstream Vera Sans Mono, monospace</option>
+	</select>
+	<label>Font-Weight</label>
+	<select>
+		<option>Thin</option>
+		<option>Normal</option>
+		<option>Bold</option>
+	</select>
+	<label>Font-Style</label>
+	<select>
+		<option>Normal</option>
+		<option>Italic</option>
+	</select>
+	<label>Font-Size</label>
+	<select>
+		<option>8</option>
+		<option>9</option>
+		<option>10</option>
+		<option>11</option>
+		<option>12</option>
+		<option>14</option>
+		<option>16</option>
+		<option>18</option>
+		<option>20</option>
+		<option>24</option>
+		<option>28</option>
+		<option>36</option>
+		<option>48</option>
+	</select>
+</li>
+{/template}
+
+/**
+ * Config: User Defined Zones
+ * @param name
+ * @param description
+ * @param id
+ * @param shared
+ * @param associated
+ * @param editableAssociation
+ */
+{template .ConfigUserZone}
+<div class="edit_user_zone">
+	<h4>Save a Zone Template</h4>
+	<form class="styled-form">
+		<label>Title</label>
+		<input type="text" name="zone_name" {if isNonnull($name)}value="{$name}"{/if} />
+		<label>Description</label>
+		<textarea name="zone_description">{if isNonnull($description)}{$description}{/if}</textarea>
+		<label>Zone Settings</label>
+		<div class="horizontal-group">
+			<label><input type="checkbox" name="share_zone" {if $shared}checked="checked"{/if}/><span class="label-text">Make this zone available to other users</span></label>
+		</div>
+		{if $editableAssociation}
+			<div class="horizontal-group">
+				<label><input type="checkbox" name="associate_zone" {if $associated}checked="checked"{/if}/><span class="label-text">Only show this zone for this template</span></label>
+			</div>
+		{/if}
+		<div class="primary-btn">
+			{if isNonnull($id)}<a class="delete-item btn-n" href="#">Delete</a>{/if}
+			<input type="button" value="Cancel" class="cancel btn btn-n"/>
+			<input type="submit" value="Save" class="btn btn-y"/>
+		</div>
+	</form>
+	<div class="he-dialog-x"></div>
+</div>
+{/template}
+
+/**
+ * Config: Horizontal Container
+ */
+{template .ConfigContainer}
+<div>
+	<h4>Select Number of Columns</h4>
+	<form class="styled-form">
+		<div>
+			<label>Number of Columns</label>
+			<span class="iterator itcolumns"><button class="minus">&minus;</button><input type="text" value="2" name="col_num"  /><button class="plus">&#x2b;</button></span>
+		</div>
+		<div class="primary-btn">
+			<button type="button" class="btn btn-n">Cancel</button>
+			<input type="submit" value="Insert" class="btn btn-y " />
+		</div>
+	</form>
+	<div class="he-dialog-x"></div>
+</div>
+{/template}
+
+/**
+ * Config: Image
+ * @param src Image URL
+ * @param name image file name
+ * @param zonewidth container width
+ * @param zoneheight container height
+ * @param altText image tag alt text
+ * @param href image href for link
+ * @param align image container text align attribute
+ * @param image_zone whether this is an image zone or a text zone (boolean)
+ * @param hspace
+ * @param vspace
+ * @param canOverwrite whether they have permissions to overwrite images
+ * @param flashDisabled whether to disable flash editor (pixlr)
+ * @param sourceDisabled whether to disable the image browser
+ * @param imageChoices
+*/
+{template .ImageEditor}
+<div class="edit_image">
+	<h4>
+		Insert Image
+	</h4>
+	<form class="styled-form">
+		<div class="dialog-page" id="image_page_1">
+			<div class="horizontal">
+				<input type="text" class="img-file-name" value="{$name}" disabled="disabled" />
+				{if not $sourceDisabled}<input type="button" value="Browse" class="upload-image btn secondary-btn secondary-btn-browse" />{/if}
+			</div>
+			<div class="image-zone-sizes">The zone that you're inserting an image into is&nbsp;
+							<span class="zone-parameter">{$zonewidth}</span> pixels wide and <span class="zone-parameter">{if $zoneheight == 0}infinite{else}{$zoneheight}{/if}</span> pixels high.</div>
+			<div class="image-tools">
+				<div class="image-preview">
+					<div class="after-loaded">
+						<img src="{$src}" {if isNonnull($align)}align="{$align}"{/if}/>
+						<div class="image-scroll">
+						{if isNonnull($imageChoices)}
+							<button class="slide-image prev-image secondary-btn btn">&lt;</button>
+							<button class="slide-image next-image secondary-btn btn">&gt;</button>
+						{/if}
+						</div>
+					</div>
+					{if not $flashDisabled}
+						<div class="after-loaded">
+							{if $canOverwrite}<button type="button" class="editImage btn secondary-btn btn-edit">Edit Original</button>{/if}
+							<button type="button" class="editImage-copy btn secondary-btn btn-edit">Edit as Copy</button>
+						</div>
+					{/if}
+				</div>
+			</div>
+			<div class="image-zone-sizes after-loaded">
+				<p class="validate-image-width">
+					* The image you've uploaded is <span class="img-width"></span> pixels wide and <span class="img-height"></span> pixels tall
+					<span class="validate-image-width warning-text"> which is wider than the width of the zone (<span class="zone-parameter">{$zonewidth}</span> pixels).  If you don't resize the image, it is likely that it will break your message layout.</span>
+				</p>
+			</div>
+			<div class="image-styles-container sedan-style">
+				<label>Alignment</label>
+				<select type="text" name="alignment" class="img-position">
+					<option{if $align == 'left'} selected="selected"{/if}>left</option>
+					<option{if $align == 'center' or -$align} selected="selected"{/if}>center</option>
+					<option{if $align == 'right'} selected="selected"{/if}>right</option>
+				</select>
+				{if $image_zone != true}
+					<label for="imghspace">HSpace</label>
+					<input id="imghspace" type="text" name="hspace" value="{if isNonnull($hspace)}{$hspace}{/if}"/>
+					<label for="imgvspace">VSpace</label>
+					<input id="imgvspace" type="text" name="vspace" value="{if isNonnull($vspace)}{$vspace}{/if}"/>
+				{/if}
+			</div>
+			<div class="image-options-container sedan-style">
+				<label for="imgalttext">Alt Text</label>
+				<input id="imgalttext" type="text" name="alttext" value="{if $altText}{$altText}{/if}"/>
+				<label for="imghref">Link URL or Email Address</label>
+				<input id="imghref" type="text" name="imghref" value="{if $href}{$href}{/if}" />
+			</div>
+			<div class="primary-btn">
+				<button type="button" class="cancel btn btn-n">Cancel</button>
+				<input type="submit" value="Insert" class="btn btn-y" />
+			</div>
+		</div>
+		<div id="image_page_2" class="dialog-page">
+			<div id="image_file_browser"></div>
+			<div class="primary-btn">
+				<button id="image_browser_cancel" type="button" class="cancel btn btn-n">Back</button>
+				<input id="image_browser_done" type="button" value="Select" class="btn btn-y" />
+			</div>
+		</div>
+	</form>
+	<div class="he-dialog-x"></div>
+</div>
+{/template}
+
+/**
+ * Image Replacer (content of image zone and image in wysiwyg)
+ * @param align
+ * @param src
+ * @param alt
+ * @param href
+ * @param style
+ * @param hspace
+ * @param vspace
+ */
+{template .ImageReplacer}
+{if isNonnull($src)}
+	{if isNonnull($href)}
+		<a href="{$href}" align="{$align}" target="_blank">
+			<img src="{$src}" alt="{$alt}" border="0" style="{$style}" align="{$align}" hspace="{$hspace}" vspace="{$vspace}">
+		</a>
+	{else}
+		<img src="{$src}" alt="{$alt}" border="0" style="{$style}" align="{$align}" hspace="{$hspace}" vspace="{$vspace}">
+	{/if}
+{else}
+	<div class="he-type-placeholder"><div></div></div>
+{/if}
+{/template}
+
+/**
+ * Feed (RSS) Content
+ * @param src the previously loaded feed source, stored in editor_feed_src cookie
+ */
+{template .ConfigFeed}
+<div class="rss-content">
+	<h4>
+		Add Posts from your RSS feed...
+	</h4>
+	<form class="styled-form">
+		<div class="rss-loader rss-active">
+			<label for="feedurl">What is your feed URL?</label>
+			<div class="horizontal">
+				<input name="feedurl" id="feedurl" {if isNonnull($src)}value="{$src}"{/if} type="text" placeholder="http://blog.yoursite.com" />
+				<button type="button" name="loadfeed" class="btn secondary-btn">Load Feed</button>
+			</div>
+		</div>
+		<div class="rss-results"></div>
+		<div class="primary-btn rss-active">
+			<button type="button" class="cancel btn btn-n">Cancel</button>
+			<input type="submit" value="Insert" class="btn btn-y" />
+		</div>
+	</form>
+	<div class="he-dialog-x"></div>
+</div>
+{/template}
+
+/**
+ * RSS Config Feed Results
+ * @param feedItems list of items to show
+ * @param more boolean, if there are more items
+ */
+{template .FeedResults}
+<div class="rss-list">
+	<table>
+		<thead>
+			<th class="rss-table-title" colspan="2">Title</th>
+			<th class="rss-table-date">Date</th>
+		</thead>
+		<tbody>
+			{call .FeedList data="all" /}
+		</tbody>
+	</table>
+	{if $more}<span class="more-items">More...</span>{/if}
+</div>
+<div class="rss-include">
+	<h5 class="rss-title">Include</h5>
+	<div class="horizontal-group">
+		<label><input type="checkbox" checked="checked" class="one-required" name="include-title" /><span class="label-text">Article title</span></label>
+		<label><input type="checkbox" name="link-title" /><span class="label-text">Link title to article</span></label>
+	</div>
+	<div class="horizontal-group">
+		<label><input type="checkbox" checked="checked" class="one-required" name="include-text" /><span class="label-text">Article excerpt</span></label>
+		<label><input type="radio" name="excerpt-format" value="text" checked="checked" /<span class="label-text">Text</span></label>
+		<label><input type="radio" name="excerpt-format" value="html" /><span class="label-text">HTML</span></label>
+	</div>
+	<div class="horizontal-group">
+		<label><input type="checkbox" checked="checked" class="one-required" name="include-date" /><span class="label-text">Article publication date</span></label>
+	</div>
+	<div class="horizontal-group">
+		<label><input type="checkbox" checked="checked" class="one-required" name="include-more" /><span class="label-text">Link to "Read more..."</span></label>
+	</div>
+</div>
+{/template}
+
+/**
+ * RSS Config Feed List
+ * @param feedItems
+ */
+{template .FeedList}
+{foreach $feedItem in $feedItems}
+	<tr>
+		<td class="rss-select-box"><input type="checkbox" name="select-feed-item" value="{$feedItem.id}" /></td>
+		<td class="rss-table-title"><div class="text-truncate">{$feedItem.title}</div></td>
+		<td class="rss-table-date">{$feedItem.prettyDate}</td>
+	</tr>
+{/foreach}
+{/template}
+
+/**
+ * RSS Output
+ * @param feedItems
+ * @param config
+ */
+{template .FeedOutput}
+{foreach $feedItem in $feedItems}
+	<div>
+		{if $config.title and $config.linkTitle}
+			<div><span style="font-size:16px;font-weight:bold;"><a href="{$feedItem.url}" style="text-decoration:none;color:#000;">{$feedItem.title}</a><span></div>
+		{elseif $config.title and not $config.linkTitle}
+			<div><span style="font-size:16px;font-weight:bold;">{$feedItem.title}</span></div>
+		{/if}
+		{if $config.date}<div><span style="color:#777">{$feedItem.prettyDate}</span></div>{/if}
+		{if $config.text}
+			{if $config.excerptHTML}
+				<div>{$feedItem.html |noAutoescape}</div>
+			{else}
+				<div>{$feedItem.text}</div>
+			{/if}
+		{/if}
+		{if $config.more}<div><a href="{$feedItem.url}">Read more...</a></div>{/if}
+	</div>
+	{if not isLast($feedItem)}<div>&nbsp;</div>{/if}
+{/foreach}
+{/template}
+
+/**
+ * SWYN Content
+ * @param current id of the current zone SWYN image
+ * @param align the alignment of the image
+ * @param insideZone if the swyn may be for a zone specifically
+ */
+{template .ConfigSWYN}
+<div class="swyn-content">
+	<h4>
+		Share with your Network
+	</h4>
+	<form class="styled-form">
+		<h4 class="basic-swyn accordion"><span class="ui-icon basic-swyn-t open"></span>Basic</h5>
+		<div class="basic-swyn-intro">These buttons have transparent backgrounds and will inherit the background color of the section they are placed within.</div>
+		<div class="basic-swyn-cont">
+		<div class="horizontal-group dark-bkgd">
+			<label>
+				<input type="radio" name="swyn_chooser" {if $current == 'https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn_share_light_b.png'}checked="checked"{/if} />
+					<span>
+						<img src="https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn_share_light_b.png" width="189" height="28" border="0" alt="" data-map="SWYN_Map_1"  />
+						<map name="SWYN_Map_1">
+							<area shape="rect" coords="76,3,94,23" href="INSERT_FB_SOC_URL" alt="Facebook" />
+							<area shape="rect" coords="96,4,113,22" href="INSERT_TW_SOC_URL" alt="Twitter" />
+							<area shape="rect" coords="114,5,132,22" href="INSERT_LI_SOC_URL" alt="Linkedin" />
+							<area shape="rect" coords="139,6,178,21" href="INSERT_MM_SOC_URL" alt="Other" />
+						</map>
+					</span>
+			</label>
+		</div>
+		<div class="horizontal-group">
+			<label>
+			<input type="radio" name="swyn_chooser" {if $current == 'https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn_share_dark_b.png'}checked="checked"{/if} />
+				<span>
+					<img src="https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn_share_dark_b.png" width="189" height="28" border="0" alt="" data-map="SWYN_Map_2" />
+					<map name="SWYN_Map_2">
+			  			<area shape="rect" coords="75,4,93,24" href="INSERT_FB_SOC_URL" alt="Facebook" />
+					  <area shape="rect" coords="96,4,113,22" href="INSERT_TW_SOC_URL" alt="Twitter" />
+					  <area shape="rect" coords="115,4,132,25" href="INSERT_LI_SOC_URL" alt="Linkedin" />
+					  <area shape="rect" coords="135,7,182,24" href="INSERT_MM_SOC_URL" alt="Other" />
+					</map>
+				</span>
+			</label>
+		</div>
+		<div class="horizontal-group">
+			<label>
+				<input type="radio" name="swyn_chooser" {if $current == 'https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn_share_dark_a.png'}checked="checked"{/if} />
+					<span>
+						<img src="https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn_share_dark_a.png" alt="" width="83" height="23" border="0" data-map="SWYN_Map_10" />
+						<map name="SWYN_Map_10">
+							<area shape="rect" coords="2,1,20,20"  href="INSERT_FB_SOC_URL" alt="Facebook">
+							<area shape="rect" coords="20,2,42,21"  href="INSERT_TW_SOC_URL" alt="Twitter">
+							<area shape="rect" coords="39,3,59,21"  href="INSERT_LI_SOC_URL" alt="Linkedin">
+							<area shape="rect" coords="62,3,81,23"  href="INSERT_MM_SOC_URL" alt="Other">
+		                </map>
+	                </span>
+			</label>
+		</div>
+		<div class="horizontal-group">
+			<label>
+				<input type="radio" name="swyn_chooser" {if $current == 'https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn-dark.png'}checked="checked"{/if} />
+					<span>
+						<img src="https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn-dark.png" width="131" height="32" border="0" alt="" data-map="SWYN_Map_3"/>
+						<map name="SWYN_Map_3">
+						  <area shape="rect" coords="1,1,32,32" href="INSERT_TW_SOC_URL" alt="Twitter" />
+						  <area shape="rect" coords="33,1,64,32" href="INSERT_FB_SOC_URL" alt="Facebook" />
+						  <area shape="rect" coords="65,1,99,32" href="INSERT_LI_SOC_URL" alt="Linkedin" />
+						  <area shape="rect" coords="100,1,131,32" href="INSERT_MM_SOC_URL" alt="Other" />
+						</map>
+					</span>
+			</label>
+		</div>
+		<div class="horizontal-group">
+			<label>
+				<input type="radio" name="swyn_chooser" {if $current == 'https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn-med.png'}checked="checked"{/if} />
+					<span>
+						<img src="https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn-med.png" width="131" height="32" border="0" alt="" data-map="SWYN_Map_4" />
+						<map name="SWYN_Map_4">
+						  <area shape="rect" coords="1,1,32,32" href="INSERT_TW_SOC_URL" alt="Twitter" />
+						  <area shape="rect" coords="33,1,64,32" href="INSERT_FB_SOC_URL" alt="Facebook" />
+						  <area shape="rect" coords="65,1,99,32" href="INSERT_LI_SOC_URL" alt="Linkedin" />
+						  <area shape="rect" coords="100,1,131,32" href="INSERT_MM_SOC_URL" alt="Other" />
+						</map>
+					</span>
+			</label>
+		</div>
+		<div class="horizontal-group dark-bkgd">
+			<label>
+				<input type="radio" name="swyn_chooser" {if $current == 'https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn-light.png'}checked="checked"{/if} />
+					<span>
+						<img src="https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn-light.png" width="131" height="32" border="0" alt="" data-map="SWYN_Map_5" />
+						<map name="SWYN_Map_5">
+						  <area shape="rect" coords="1,1,32,32" href="INSERT_TW_SOC_URL" alt="Twitter" />
+						  <area shape="rect" coords="33,1,64,32" href="INSERT_FB_SOC_URL" alt="Facebook" />
+						  <area shape="rect" coords="65,1,99,32" href="INSERT_LI_SOC_URL" alt="Linkedin" />
+						  <area shape="rect" coords="100,1,131,32" href="INSERT_MM_SOC_URL" alt="Other" />
+						</map>
+					</span>
+			</label>
+		</div>
+		</div>
+		<h4 class="novelty-swyn accordion"><span class="ui-icon novelty-swyn-t"></span>Novelty</h5>
+		<div class="novelty-swyn-cont">
+		<div class="horizontal-group">
+			<label>
+				<input type="radio" name="swyn_chooser" {if $current == 'https://images.magnetmail.net/images/template/Socialnetwork2013/SWYN_Button01.png'}checked="checked"{/if} />
+					<span>
+						<img src="https://images.magnetmail.net/images/template/Socialnetwork2013/SWYN_Button01.png" alt="Share" width="186" height="48" border="0" data-map="SWYN_Map_6">
+						<map name="SWYN_Map_6">
+							<area shape="rect" coords="96,2,119,25" href="INSERT_FB_SOC_URL" alt="Share on Facebook" target="_blank">
+							<area shape="rect" coords="126,2,147,27" href="INSERT_TW_SOC_URL" alt="Share on Twitter" target="_blank">
+							<area shape="rect" coords="156,3,178,26" href="INSERT_LI_SOC_URL" alt="Share on Linkedin" target="_blank">
+							<area shape="rect" coords="96,28,175,45" href="INSERT_MM_SOC_URL" alt="Share" target="_blank">
+							<area shape="rect" coords="4,4,92,45" href="INSERT_MM_SOC_URL" alt="Share" target="_blank">
+						</map>
+					</span>
+			</label>
+		</div>
+		<div class="horizontal-group">
+			<label>
+				<input type="radio" name="swyn_chooser" {if $current == 'https://images.magnetmail.net/images/template/Socialnetwork2013/SWYN_Button02.png'}checked="checked"{/if} />
+					<span>
+						<img src="https://images.magnetmail.net/images/template/Socialnetwork2013/SWYN_Button02.png" width="171" height="51" border="0" data-map="SWYN_Map_7">
+						<map name="SWYN_Map_7">
+							<area shape="rect" coords="51,25,77,48" href="INSERT_FB_SOC_URL" alt="Share on Facebook" target="_blank">
+							<area shape="rect" coords="17,24,43,49" href="INSERT_TW_SOC_URL" alt="Share on Twitter" target="_blank">
+							<area shape="rect" coords="87,26,109,47" href="INSERT_LI_SOC_URL" alt="Share on Linkedin" target="_blank">
+							<area shape="rect" coords="117,22,165,40" href="INSERT_MM_SOC_URL" alt="Share" target="_blank">
+							<area shape="rect" coords="11,4,153,17" href="INSERT_MM_SOC_URL" alt="Share" target="_blank">
+						</map>
+					</span>
+			</label>
+		</div>
+		<div class="horizontal-group">
+			<label>
+				<input type="radio" name="swyn_chooser" {if $current == 'https://images.magnetmail.net/images/template/Socialnetwork2013/SWYN_Button03.png'}checked="checked"{/if} />
+					<span>
+						<img src="https://images.magnetmail.net/images/template/Socialnetwork2013/SWYN_Button03.png" width="225" height="34" border="0" data-map="SWYN_Map_8">
+						<map name="SWYN_Map_8">
+							<area shape="rect" coords="112,5,136,27" href="INSERT_FB_SOC_URL" alt="Share on Facebook" target="_blank">
+							<area shape="rect" coords="84,6,109,28" href="INSERT_TW_SOC_URL" alt="Share on Twitter" target="_blank">
+							<area shape="rect" coords="140,5,163,27" href="INSERT_LI_SOC_URL" alt="Share on Linkedin" target="_blank">
+							<area shape="rect" coords="171,12,218,29" href="INSERT_MM_SOC_URL" alt="Share" target="_blank">
+							<area shape="rect" coords="3,5,80,31" href="INSERT_MM_SOC_URL" alt="Share" target="_blank">
+						</map>
+					</span>
+			</label>
+		</div>
+		<div class="horizontal-group">
+			<label>
+				<input type="radio" name="swyn_chooser" {if $current == 'https://images.magnetmail.net/images/template/Socialnetwork2013/SWYN_Button04.png'}checked="checked"{/if} />
+					<span>
+						<img src="https://images.magnetmail.net/images/template/Socialnetwork2013/SWYN_Button04.png" width="207" height="28" border="0" data-map="SWYN_Map_9">
+						<map name="SWYN_Map_9">
+							<area shape="rect" coords="76,2,100,24" href="INSERT_FB_SOC_URL" alt="Share on Facebook" target="_blank">
+							<area shape="rect" coords="103,2,128,24" href="INSERT_TW_SOC_URL" alt="Share on Twitter" target="_blank">
+							<area shape="rect" coords="133,2,156,24" href="INSERT_LI_SOC_URL" alt="Share on Linkedin" target="_blank">
+							<area shape="rect" coords="160,7,203,24" href="INSERT_MM_SOC_URL" alt="Share" target="_blank">
+							<area shape="rect" coords="3,2,72,25" href="INSERT_MM_SOC_URL" alt="Share" target="_blank">
+						</map>
+					</span>
+			</label>
+		</div>
+		</div>
+		{if $insideZone != true}
+		<label class="swyn-align">Alignment</label>
+			<select type="text" name="alignment" class="swyn-position">
+				<option{if $align == 'left'} selected="selected"{/if}>left</option>
+				<option{if $align == 'center' or $align == false} selected="selected"{/if}>center</option>
+				<option{if $align == 'right' or ($insideZone and not $align)} selected="selected"{/if}>right</option>
+			</select>
+		{/if}
+		<div class="primary-btn">
+			<button type="button" class="cancel btn btn-n">Cancel</button>
+			<input type="submit" value="Insert" class="btn btn-y" />
+		</div>
+	</form>
+	<div class="he-dialog-x"></div>
+</div>
+{/template}
+
+/**
+ * Builder for the select>option based config windows
+ * @param title
+ * @param ssl boolean whether to allow SSL links or not
+ * @param options [{text:'',value:''}]
+ * @param size empty to show a dropdown, number to show list
+ */
+{template .SelectBuilder}
+<div class="generic-select">
+	<h4>
+		{$title}
+	</h4>
+	<form>
+		{if $options.length}
+			<select {if $size}size="{$size}"{/if}>
+			{foreach $option in $options}
+				<option value="{$option.value}" {if $option.selected}selected="selected"{/if}>{$option.text}</option>
+			{/foreach}
+			</select>
+			{if $ssl}
+				<label><input type="checkbox" name="ssl_option" /> Enable SSL for this link</label>
+			{/if}
+			<div class="primary-btn">
+				<button type="button" class="cancel btn btn-n">Cancel</button>
+				<input type="submit" value="Insert" class="btn btn-y" />
+			</div>
+		{else}
+			<p>Sorry, there are not any available.</p>
+			<div class="primary-btn">
+				<button type="button" class="cancel btn btn-n">Cancel</button>
+			</div>
+		{/if}
+	</form>
+	<div class="he-dialog-x"></div>
+</div>
+{/template}
+
+/**
+ * View Source Popup (for ckeditor)
+ */
+{template .SourcePopup}
+<div class="source-popup">
+	<h4>
+		Edit Source HTML
+	</h4>
+	<form class="styled-form">
+		<textarea></textarea>
+		<div class="primary-btn">
+			{call .CodeThemes /}
+			<button type="button" class="cancel btn btn-n">Cancel</button>
+			<input type="submit" value="Save" class="btn btn-y" />
+		</div>
+	</form>
+	<div class="he-dialog-x"></div>
+</div>
+{/template}
+
+/**
+ * Builder for personalized fields
+ * @param standard
+ * @param custom
+ * @param account
+ * @param enhancedShared
+ * @param enhancedPrivate
+ */
+{template .PersonalizedFields}
+<div class="personalized-fields">
+	<h4>
+		Insert Personalized Field
+	</h4>
+	<form class="styled-form">
+		<select size="15">
+			{if $standard.length}
+				<optgroup label="Standard Fields">
+					{foreach $sField in $standard}
+						<option value="{$sField.value}">{$sField.text}</option>
+					{/foreach}
+				</optgroup>
+			{/if}
+			{if $custom.length}
+				<optgroup label="Recipient Custom Fields">
+					{foreach $cField in $custom}
+						<option value="{$cField.value}">{$cField.text}</option>
+					{/foreach}
+				</optgroup>
+			{/if}
+			{if $account.length}
+				<optgroup label="Account Custom Fields">
+					{foreach $aField in $account}
+						<option value="{$aField.value}">{$aField.text}</option>
+					{/foreach}
+				</optgroup>
+			{/if}
+			{if $enhancedShared.length}
+				<optgroup label="Shared Enhanced Fields">
+				{foreach $esField in $enhancedShared}
+					<option value="{$esField.value}">{$esField.text}</option>
+				{/foreach}
+				</optgroup>
+			{/if}
+			{if $enhancedPrivate.length}
+				<optgroup label="Private Enhanced Fields">
+				{foreach $epField in $enhancedPrivate}
+					<option value="{$epField.value}">{$epField.text}</option>
+				{/foreach}
+				</optgroup>
+			{/if}
+		</select>
+		<div class="primary-btn">
+			<button type="button" class="cancel btn btn-n">Cancel</button>
+			<input type="submit" value="Insert" class="btn btn-y" />
+		</div>
+	</form>
+	<div class="he-dialog-x"></div>
+</div>
+{/template}
+
+/**
+ * Custom link builder for ckeditor
+ * @param theme
+ * @param current
+ * @param profiles google analytics profiles from the user's account
+ * @param anchors a list of the existing anchors in a template
+ * @param unsubscribeLinks a list of the existing anchors in a template
+ * @param type message or template
+ */
+{template .LinkMaker}
+<div class="link-maker">
+	<h4>
+		Edit Link
+	</h4>
+	<form class="show-{$current.type} styled-form">
+			<div>
+				<label for="link-type">Link Type</label>
+				<select name="link-type" id="link-type">
+					<option value="url" {if $current.type == 'url'}selected="selected"{/if}>URL</option>
+					<option value="email" {if $current.type == 'email'}selected="selected"{/if}>Email</option>
+					<option value="anchor" {if $current.type == 'anchor'}selected="selected"{/if}>Link to anchor</option>
+					{if length($unsubscribeLinks) and $type == 'template'}
+						<option value="unsubscribe" {if $current.type == 'unsubscribe'}selected="selected"{/if}>Unsubscribe Link</option>
+					{/if}
+				</select>
+			</div>
+			<div class="only-url">
+				<label for="link-url">URL</label>
+				<input type="text" name="link-url" value="{$current.href}" id="link-url" class="input-full" />
+				<p class="google-token-notice help-block">Google analytics tokens will automatically be appended to this link.</p>
+			</div>
+			<div class="only-email">
+				<label for="link-email">Email Address</label>
+				<input type="text" class="input-full" name="link-email" value="{$current.email}" id="link-email" />
+				<label for="link-email-subject">Message Subject</label>
+				<input type="text" class="input-full" name="link-email-subject" value="{$current.emailSubject}" id="link-email-subject" />
+				<label for="link-email-body">Message Body</label>
+				<input type="text" class="input-full" name="link-email-body" value="{$current.emailBody}" id="link-email-body" />
+			</div>
+			<div class="only-anchor">
+				<label for="link-anchor">Anchor</label>
+				{if length($anchors)}
+					<select name="link-anchor" id="link-anchor">
+						{foreach $anchor in $anchors}
+							<option {if $current.anchor == $anchor}selected="selected"{/if}>{$anchor}</option>
+						{/foreach}
+					</select>
+				{else}
+					<p>You must create anchors using the anchor tool first.</p>
+				{/if}
+			</div>
+
+			{if length($unsubscribeLinks)}
+				<div class="only-unsubscribe">
+					<label for="link-unsubscribe">Unsubscribe Link Label</label>
+					<select name="link-unsubscribe" id="link-unsubscribe">
+						{foreach $unsubscribeLink in $unsubscribeLinks }
+							<option data-keyword="{$unsubscribeLink.KEYWORD}" {if $current.unsubscribe == $unsubscribeLink.KEYWORD}selected="selected"{/if}>{$unsubscribeLink.LABEL}</option>
+						{/foreach}
+					</select>
+				</div>
+			{/if}
+			<h5>Target</h5>
+			<div class="horizontal-group">
+				<label><input type="checkbox" name="link-newwindow" id="link-newwindow" {if $current.newwindow == true}checked="checked"{/if} /><span class="label-text">Open link in new window.</span></label>
+			</div>
+			{call .LinkMakerColor}
+				{param theme: $theme /}
+				{param current: $current.color /}
+			{/call}
+			<div class="link-styles">
+				<h5>Style</h5>
+				<div class="horizontal-group">
+					<label><input type="checkbox" name="link-underline" id="link-underline"/><span class="label-text">Underline the link</span></label>
+				</div>
+				<input type="text" name="link-style" class="input-full" value="{$current.style}" id="link-style" placeholder="inline css (ex. color:#454545;)"/>
+			</div>
+		</ul>
+		<div class="google-analytics only-url">
+			<h5 class="ga-header">Google Analytics</h5>
+			<div class="ga-details compact-style">
+				<div class="horizontal">
+					<label for="ga-profile">Profile</label>
+					<select id="ga-profile" name="ga-profile" class="input-medium">
+						<option value="0">None</option>
+						{foreach $profile in $profiles}
+							<option value="{$profile.Id}">{$profile.Label}</option>
+						{/foreach}
+					</select>
+				</div>
+				<div class="horizontal">
+					<label for="ga-source">Source</label>
+					<input type="text" id="ga-source" name="ga-source" class="input-medium"/>
+				</div>
+				<div class="horizontal">
+					<label for="ga-medium">Medium</label>
+					<input type="text" id="ga-medium" name="ga-medium" class="input-medium"/>
+				</div>
+				<div class="horizontal">
+					<label for="ga-keyword">Keyword</label>
+					<input type="text" id="ga-keyword" name="ga-keyword" class="input-medium"/>
+				</div>
+				<div class="horizontal">
+					<label for="ga-content">Content</label>
+					<input type="text" id="ga-content" name="ga-content" class="input-medium"/>
+				</div>
+				<div class="horizontal">
+					<label for="ga-campaign">Campaign</label>
+					<input type="text" id="ga-campaign" name="ga-campaign" class="input-medium"/>
+				</div>
+			</div>
+		</div>
+		<div class="primary-btn">
+			<button type="button" class="cancel btn btn-n">Cancel</button>
+			<input type="submit" value="OK" class="btn btn-y" />
+		</div>
+	</form>
+	<div class="he-dialog-x"></div>
+</div>
+{/template}
+
+/**
+ * Link Maker Color Picker
+ * @param theme
+ * @param current
+ */
+{template .LinkMakerColor}
+<li class="themesmodule colorselector clearfix">
+	<label for="link-color">Color</label>
+	<select name="link-color" id="link-color">
+		<option value="0" data-color="" {if not isNonnull($current)}selected="selected"{/if}>None</option>
+		{foreach $color in $theme.colors}
+		{if $color.value}<option value="{index($color) + 1}" data-color="{$color.value}" {if index($color)+1==$current}selected="selected"{/if}>{$color.name}</option>{/if}
+		{/foreach}
+	</select>
+	{if $theme.editable}<p>Don't see the color you want?  <a class="add-color">Edit your theme</a>.</p>{/if}
+</li>
+{/template}
+
+/**
+ * Article Group Config
+ * @param hasSWYN whether there's a SWYN zone in the article (boolean)
+ * @param title
+ * @param url the url to share for the article
+ * @param autoSendTwitter
+ * @param autoSendFacebook
+ * @param socialPermissions whether they can post to facebook and twitter
+ * @param twitterBody the contents of the tweet
+ */
+{template .ConfigArticleGroup}
+<div class="article-config">
+	<h4>
+		Article Properties
+	</h4>
+	<form class="styled-form">
+		<ul class="errors-list"></ul>
+		<p class="help-block-intro">Using this zone for the first time?  Check out the <a href="http://youtu.be/FNLP7sidL2E" target="_blank">video tutorial</a> or the <a href="http://blog.realmagnet.com/2014/01/overview-using-article-zones/" target="_blank">blog post</a>.</p>
+		<div class="horizontal-group layouts">
+			<h5>Email Layout</h5>
+			<label class="left-image"><div></div><input type="radio" name="article_layout" value="LeftImage"><span class="label-text">Left Image</span></label>
+			<label class="right-image"><div></div><input type="radio" name="article_layout" value="RightImage"><span class="label-text">Right Image</span></label>
+			<label class="top-image"><div></div><input type="radio" name="article_layout" value="TopImage"><span class="label-text">Top Image</span></label>
+			<label class="no-image"><div></div><input type="radio" name="article_layout" value="NoImage"><span class="label-text">No Image</span></label>
+		</div>
+
+		<label for="article_title">Article Title</label>
+		<input type="text" name="article_title" id="article_title" placeholder="Title of Article" value="{$title ?: ''}" class="input-full" />
+		<p class="help-block">This title will be linked to the URL below.</p>
+
+		<label for="sharing_url">Article URL</label>
+		<input type="text" name="sharing_url" id="sharing_url" placeholder="http://" value="{$url}" class="input-full" />
+
+		<div class="horizontal-group top-margin">
+			//<label><input type="checkbox"/>Include a "read more..." link at the bottom of the article</label>
+			<label><input type="checkbox" name="article_swyn" {if $hasSWYN}checked="checked"{/if}><span class="label-text">Add a SWYN zone for this article</span></label>
+		</div>
+		<div>
+			<label>Social Publishing</label>
+			{if $socialPermissions}
+				<p class="help-block">Post this article to your Facebook and/or Twitter accounts.  We will format it for you automatically.  You can schedule and preview the posts on the Send Page.  </p>
+				<div class="{if $autoSendTwitter}has-twitter{/if} article-social">
+					<div class="horizontal-group">
+						<label><input type="checkbox" name="post_twitter" {if $autoSendTwitter}checked="checked"{/if}><span class="label-text">Tweet this article</span></label>
+					</div>
+					<div class="twitter-info">
+						<textarea name="twitter_body" id="twitter_body" placeholder="Come see this great article!">{$twitterBody}</textarea>
+						<p class="help-block">The article URL will automatically be appended to the tweet.</p>
+					</div>
+					<div class="horizontal-group">
+						<label><input type="checkbox" name="post_facebook" {if $autoSendFacebook}checked="checked"{/if}><span class="label-text">Post this article to Facebook</span></label>
+					</div>
+				</div>
+			{else}
+				<p class="help-block">By adding your Facebook and/or Twitter accounts to Real Magnet, you can create and post social content and have access to rich analytics on the engagement of your friends and followers.  If enabled, this discrete article would be published automatically to your Facebook and Twitter accounts. <a href="http://youtu.be/SoP-WCyT7yo" target="_blank">Learn More.<a/></p>
+			{/if}
+		</div>
+		<div class="primary-btn">
+			<button type="button" class="btn btn-n">Cancel</button>
+			<input type="submit" value="OK" class="btn btn-y" />
+		</div>
+		<div class="he-dialog-x"></div>
+	</form>
+</div>
+{/template}
+
+/**
+ * Code Theme Switcher
+ */
+{template .CodeThemes}
+<label class="code-theme-switch">
+	Source View Theme:
+	<select id="code_theme_switch">
+		<optgroup label="Dark">
+			<option value="3024-night">3024 Night</option>
+			<option value="ambiance">Ambiance</option>
+			<option value="base16-dark">Base 16 Dark</option>
+			<option value="blackboard">Blackboard</option>
+			<option value="cobalt">Cobalt</option>
+			<option value="erlang-dark">Erlang Dark</option>
+			<option value="lesser-dark">Lesser Dark</option>
+			<option value="mbo">MBO</option>
+			<option value="midnight">Midnight</option>
+			<option value="monokai">Monokai</option>
+			<option value="night">Night</option>
+			<option value="paraiso-dark">Paraiso Dark</option>
+			<option value="pastel-on-dark">Pastel on Dark</option>
+			<option value="rubyblue">Ruby Blue</option>
+			<option value="the-matrix">The Matrix</option>
+			<option value="tomorrow-night-eighties">Tomorrow Night Eighties</option>
+			<option value="twilight">Twilight</option>
+			<option value="vibrant-ink">Vibrant Ink</option>
+			<option value="xq-dark">XQ Dark</option>
+		</optgroup>
+		<optgroup label="Light">
+			<option value="3024-day">3024 Day</option>
+			<option value="base16-light">Base 16 Light</option>
+			<option value="eclipse">Eclipse</option>
+			<option value="elegant">Elegant</option>
+			<option value="mdn-like">MDN Like</option>
+			<option value="neat">Neat</option>
+			<option value="paraiso-light">Paraiso Light</option>
+			<option value="solarized">Solarized</option>
+			<option value="xq-light">XQ Light</option>
+		</optgroup>
+	</select>
+</label>
+{/template}
+/**
+ * Code View
+ */
+{template .CodeView}
+<div class="alt-view code-view">
+	<form>
+		<textarea></textarea>
+		<div class="primary-btn">
+			{call .CodeThemes /}
+			<button type="submit" class="btn btn-y">Save</button>
+		</div>
+	</form>
+</div>
+{/template}
+
+/**
+ * Text View
+ * @param text
+ */
+{template .TextView}
+<div class="alt-view text-view">
+	<form>
+		<div class="view-toolbar primary-btn">
+			<button type="button" class="get-text btn btn-n btn-refresh">Refresh</button>
+			<button type="submit" class="btn btn-y">Save</button>
+		</div>
+		<textarea>{$text}</textarea>
+	</form>
+</div>
+{/template}
+
+/**
+ * Mobile View
+ */
+{template .MobileView}
+<div class="alt-view mobile-view">
+	<form class="css-base">
+		<div class="view-toolbar primary-btn">
+			<button type="button" class="btn get-mobile btn-n btn-refresh">Refresh</button>
+			<button type="submit" class="btn btn-y">Save</button>
+			<div id="mobile-toolbar"></div>
+		</div>
+		<textarea></textarea>
+	</form>
+</div>
+{/template}
+
+/**
+ * Mobile/Text view update warning
+ * @param type text or mobile
+ */
+{template .ViewUpdateWarning}
+<div class="view-update-popup simple-prompt">
+	<h4>
+		Warning
+	</h4>
+	<form class="styled-form">
+		<p>Updating this view will pull in content from the HTML version.</p>
+		<p>Any changes previously made to the {$type} view will be lost.</p>
+		<div class="primary-btn">
+			<button type="button" class="cancel btn btn-n">Cancel</button>
+			<input type="submit" value="Okay" class="btn btn-y" />
+		</div>
+	</form>
+</div>
+{/template}
+
+/**
+ * Paste Warning
+ */
+{template .PasteWarning}
+<div class="paste-popup simple-prompt">
+	<h4>
+		Warning
+	</h4>
+	<form>
+		<p>Please use the pasting buttons on the toolbar.</p>
+		<p>For email consistency it is recommended that you paste as text and reapply formatting.</p>
+		<div class="primary-btn">
+			<input type="submit" value="Okay" class="btn btn-y" />
+		</div>
+	</form>
+</div>
+{/template}
+
+/**
+ * Resize Window
+ * @param width
+ */
+{template .ResizeWindow}
+<div class="resize-popup simple-prompt">
+	<h4>
+		Set Blank Canvas Width
+	</h4>
+	<form>
+		<label for="resize_width">Canvas Width</label>
+		<input type="text" id="resize_width" value="{$width}">
+		<p><span class="hint">*Hint:</span>  If you are using a banner for your email, the width of the canvas should be the same as the banner.
+		<div class="primary-btn">
+			<button type="button" class="cancel btn btn-n">Cancel</button>
+			<input type="submit" value="Okay" class="btn btn-y" />
+		</div>
+	</form>
+</div>
+{/template}
+
+/**
+ * Prompt for image copy name
+ * @param originalName
+ */
+{template .NewImageName}
+<div class="image-prompt">
+	<h4>
+		Image File Name
+	</h4>
+	<form>
+		<p>Choose a name for the new image.  This name must not contain spaces.</p>
+		<div>
+			<label for="image_copy_name">Image Copy Name</label>
+			<input placeholder="{$originalName}" type="text" id="image_copy_name" name="image_copy_name">
+		</div>
+		<ul class="errors-list"></ul>
+		<div class="primary-btn">
+			<button type="button" class="cancel btn btn-n">Cancel</button>
+			<input type="submit" value="Okay" class="btn btn-y" />
+		</div>
+	</form>
+</div>
+{/template}
+
+/**
+ * New Features Feed
+ * @param features an array of new features
+ */
+{template .NewFeatures}
+<div class="new-features dialog-scroll">
+	<h4>
+		Here are some features we added while you were away!
+	</h4>
+	<form>
+		<ol>
+			{foreach $feature in $features}
+				<li>
+					<h5><a href="{$feature.url}" target="_blank">{$feature.title |noAutoescape}</a></h5>
+					<span>{$feature.prettyDate}</span>
+					<p>{$feature.text |noAutoescape}</p>
+				</li>
+			{/foreach}
+		</ol>
+		<a class="link-footnote" target="_blank" href="http://www.realmagnet.com/category/rm-editor-updates/">Read more...</a>
+		<div class="primary-btn rss-active">
+			<input type="submit" value="Okay" class="btn btn-y cancel" />
+		</div>
+	</form>
+	<div class="he-dialog-x cancel"></div>
+</div>
+{/template}
+
+/**
+ * Article Group
+ * @param layout LeftImage | RightImage | TopImage | NoImage
+ * @param hasSWYN whether it has a SWYN zone
+ * @param title the title property to be shared
+ * @param url the article url to share
+ * @param swynContent the html content of the swyn zone
+ * @param imageContent the html content of the image zone
+ * @param titleContent the html content of the title zone
+ * @param bodyContent the html content of the body zone
+ * @param twitterBody tweet contents
+ * @param autoSendSocial space seperated list of social networks to autosend
+ */
+{template .ArticleGroup}
+<td valign="top" data-zone="article" data-layout="{$layout}" data-article-title="{$title ?: ''}" data-article-twitter="{$twitterBody ?: ''}" data-article-autosend="{$autoSendSocial}" data-article-url="{$url}">
+	<table style="width:100%;margin-bottom:0;" cellspacing="0" cellspacing="0">
+		<tr>
+			{if $layout == 'LeftImage'}
+				<td valign="top" data-zone="vertical container">
+					<table>
+						<tbody>
+							<tr>
+								{if $imageContent}
+									{$imageContent |noAutoescape}
+								{else}
+									<td data-zone="image" class="image-placeholder" style="padding:12px 0;">
+										{call .ImageReplacer data="all"}
+											{param src: null /}
+										{/call}
+									</td>
+								{/if}
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			{/if}
+			<td valign="top" data-zone="vertical container">
+				<table width="100%" style="margin-bottom:0;" cellspacing="0" cellpadding="0">
+					{if $layout == 'TopImage'}
+						{if $imageContent}
+							{$imageContent |noAutoescape}
+						{else}
+							<td data-zone="image" class="image-placeholder">
+								{call .ImageReplacer data="all"}
+									{param src: null /}
+								{/call}
+							</td>
+						{/if}
+					{/if}
+					<tr>
+						{if $titleContent}
+							{$titleContent |noAutoescape}
+						{else}
+							<td valign="top" data-zone="text" data-article="title" style="padding:10px 10px 5px 10px; font-size:18px;"><div><strong><a href="{$url}" style="color:#000000;">{$title}</a></strong></div></td>
+						{/if}
+					</tr>
+					<tr>
+						{if $bodyContent}
+							{$bodyContent |noAutoescape}
+						{else}
+							<td valign="top" data-zone="text" data-article="body" style="padding:10px; font-size:13px;"><div>Consectetur adipiscing elit. Morbi facilisis purus augue, sed suscipit arcu. Pellentesque sem risus, sagittis eget interdum sed, tempus eget tortor. Duis molestie pellentesque porta. Maecenas tristique eros ullamcorper eros molestie quis sagittis ipsum gravida. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus et ipsum quis mi imperdiet malesuada. Sed dapibus volutpat mattis. Nunc sed nisl ipsum. Aliquam odio nibh, molestie vitae molestie sed, blandit ut dui. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi venenatis interdum eleifend.</div></td>
+						{/if}
+					</tr>
+					{if $hasSWYN}
+						{if $swynContent}
+							{$swynContent |noAutoescape}
+						{else}
+							<tr>
+								<td valign="top" data-zone="swyn" style="text-align: right; height: auto;">
+									<img src="https://images.magnetmail.net/images/template/Template_Library/socialButtons/swyn_share_dark_article.png" alt="" width="62" height="22" border="0" usemap="#SWYN_Map_10" data-map="SWYN_Map_10" />
+									<map name="SWYN_Map_10">
+										<area shape="rect" coords="2,1,21,20"  href="INSERT_FB_SOC_URL" alt="Facebook">
+										<area shape="rect" coords="22,1,40,20"  href="INSERT_TW_SOC_URL" alt="Twitter">
+										<area shape="rect" coords="41,1,59,59"  href="INSERT_LI_SOC_URL" alt="Linkedin">
+					                </map>
+								</td>
+							</tr>
+						{/if}
+					{/if}
+				</table>
+			</td>
+			{if $layout == 'RightImage'}
+				<td valign="top" data-zone="vertical container">
+					<table>
+						<tbody>
+							<tr>
+								{if $imageContent}
+									{$imageContent |noAutoescape}
+								{else}
+									<td data-zone="image" class="image-placeholder" style="padding:12px 0;">
+										{call .ImageReplacer data="all"}
+											{param src: null /}
+										{/call}
+									</td>
+								{/if}
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			{/if}
+		</tr>
+	</table>
+</td>
+{/template}

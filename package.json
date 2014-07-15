@@ -2,13 +2,16 @@
   "name": "soy-templates",
   "main": "./lib/soy-templates",
   "version": "0.0.0",
-  "description": "A short description of your package",
-  "activationEvents": ["soy-templates:toggle"],
-  "repository": "https://github.com/atom/soy-templates",
-  "license": "MIT",
   "engines": {
     "atom": ">0.50.0"
   },
-  "dependencies": {
+  "description": "Soy Template language support for the Atom Editor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bendman/soy-templates"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bendman/soy-templates/issues"
   }
 }

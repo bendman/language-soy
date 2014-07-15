@@ -1,0 +1,14 @@
+{
+  "name": "soy-templates",
+  "main": "./lib/soy-templates",
+  "version": "0.0.0",
+  "description": "A short description of your package",
+  "activationEvents": ["soy-templates:toggle"],
+  "repository": "https://github.com/atom/soy-templates",
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "dependencies": {
+  }
+}

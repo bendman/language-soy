@@ -5,6 +5,43 @@
 ]
 'patterns': [
   {
+    'include': '#comment-block'
+  }
+  {
+    'match': '{(namespace|delpackage)\\s+((?!})(\\w|\\.)+)}'
+    'captures': {
+      '1': 'name': 'storage.modifier.js'
+      '2': 'name': 'entity.name.function.js'
+    }
+  }
+  {
+    'begin': '{(template)\\s+\\.((?!}).+)}'
+    'beginCaptures': {
+      '1': 'name': 'storage.type.function.js'
+      '2': 'name': 'entity.name.function.js'
+    }
+    'name': 'template.content.soy'
+    'patterns': [
+      {
+        'include': '$self'
+      }
+      {
+        'include': '#commands'
+      }
+      {
+        'include': 'text.html.basic'
+      }
+    ]
+    'end': '{/(template)}'
+    'endCaptures': {
+      '1': {
+        'name': 'storage.type.function.js'
+      }
+    }
+  }
+]
+'repository': {
+  'comment-block': {
     'begin': '/\\*'
     'name': 'comment.block.js'
     'patterns': [
@@ -18,23 +55,59 @@
     ]
     'end': '\\*/'
   }
-  {
-    'begin': '{(template) \\.((?!}).+)}'
-    'beginCaptures': {
-      '1': 'name': 'storage.type.function.js'
-      '2': 'name': 'entity.name.function.js'
-    }
-    'name': 'template.content.soy'
+  'procedures': {
     'patterns': [
       {
-        'include': 'text.html.basic'
+        'match': '\\$\\w+'
+        'name': 'variable.language.js'
+      }
+      {
+        'begin': '\''
+        'name': 'string.quoted.single.js'
+        'end': '\''
+      }
+      {
+        'match': '(==|!=)'
+        'name': 'keyword.operator.js'
+      }
+      {
+        'match': '\\W(true|false|null)'
+        'captures': '1': 'name': 'constant.language.js'
       }
     ]
-    'end': '{/(template)}'
-    'endCaptures': {
-      '1': {
-        'name': 'storage.type.function.js'
-      }
-    }
   }
-]
+  'commands': {
+    'patterns': [
+      {
+        'match': '{(sp|nil|lb|rb|(?:\\\\)(r|n|t))}'
+        'captures': '1': 'name': 'constant.language.js'
+      }
+      {
+        'begin': '{(else(if)?|/?switch|case|default|ifempty|/?foreach|print|/?if)'
+        'captures': '1': 'name': 'keyword.control.js'
+        'patterns': [
+          {
+            'include': '#procedures'
+          }
+        ]
+        'end': '}'
+      }
+      {
+        'begin': '{(literal)}'
+        'beginCaptures': '1': 'name': 'keyword.control.js'
+        'patterns': [
+          {
+            'include': 'text.html.basic'
+          }
+        ]
+        'end': '{/(literal)}'
+        'endCaptures': '1': 'name': 'keyword.control.js'
+      }
+      {
+        'begin': '{/?(call)'
+        'captures': '1': 'name': 'keyword.control.js'
+        'end': '/?}'
+      }
+    ]
+  }
+}

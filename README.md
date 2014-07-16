@@ -1,3 +1,5 @@
+[![Gitter chat](https://badges.gitter.im/bendman/language-soy.png)](https://gitter.im/bendman/language-soy)
+
 # Soy language support in Atom
 
 Adds syntax highlighting to Google Closure Templates.

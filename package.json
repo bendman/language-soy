@@ -1,6 +1,6 @@
 {
-  "name": "soy-templates",
-  "main": "./lib/soy-templates",
+  "name": "language-soy",
+  "main": "./lib/language-soy",
   "version": "0.0.0",
   "engines": {
     "atom": ">0.50.0"
@@ -8,10 +8,10 @@
   "description": "Soy Template language support for the Atom Editor",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bendman/soy-templates"
+    "url": "https://github.com/bendman/language-soy"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bendman/soy-templates/issues"
+    "url": "https://github.com/bendman/language-soy/issues"
   }
 }

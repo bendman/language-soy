@@ -5,7 +5,23 @@
 ]
 'patterns': [
   {
-    'include': '#comment-block'
+    'begin': '/\\*'
+    'name': 'comment.block.js'
+    'patterns': [
+      {
+        'match': '(@param)\\s+(\\w+)'
+        'captures': {
+          '1': 'name': 'storage.modifier.js'
+          '2': 'name': 'variable.parameter.function.js'
+        }
+      }
+    ]
+    'end': '\\*/'
+  }
+  {
+    'begin': '//'
+    'name': 'comment.line.double-slash.js'
+    'end': '\\n'
   }
   {
     'match': '{(namespace|delpackage)\\s+((?!})(\\w|\\.)+)}'
@@ -29,6 +45,9 @@
         'include': '#commands'
       }
       {
+        'include': '#procedures'
+      }
+      {
         'include': 'text.html.basic'
       }
     ]
@@ -41,20 +60,6 @@
   }
 ]
 'repository': {
-  'comment-block': {
-    'begin': '/\\*'
-    'name': 'comment.block.js'
-    'patterns': [
-      {
-        'match': '(@param)\\s+(\\w+)'
-        'captures': {
-          '1': 'name': 'storage.modifier.js'
-          '2': 'name': 'variable.parameter.function.js'
-        }
-      }
-    ]
-    'end': '\\*/'
-  }
   'procedures': {
     'patterns': [
       {
@@ -67,12 +72,16 @@
         'end': '\''
       }
       {
-        'match': '(==|!=)'
+        'match': '(==|!=|\\+|-)'
         'name': 'keyword.operator.js'
       }
       {
-        'match': '\\W(true|false|null)'
+        'match': '\\W(true|false|null|\\d+)'
         'captures': '1': 'name': 'constant.language.js'
+      }
+      {
+        'match': '\\s(\\|(?:insertWordBreaks|noAutoescape|escapeHtml))'
+        'name': 'keyword.operator.js'
       }
     ]
   }

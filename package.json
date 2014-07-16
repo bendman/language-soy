@@ -1,7 +1,7 @@
 {
   "name": "language-soy",
   "main": "./lib/language-soy",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "engines": {
     "atom": ">0.50.0"
   },

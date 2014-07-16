@@ -1,13 +1,13 @@
 {View} = require 'atom'
 
 module.exports =
-class SoyTemplatesView extends View
+class LanguageSoyView extends View
   @content: ->
-    @div class: 'soy-templates overlay from-top', =>
-      @div "The SoyTemplates package is Alive! It's ALIVE!", class: "message"
+    @div class: 'language-soy overlay from-top', =>
+      @div "The LanguageSoy package is Alive! It's ALIVE!", class: "message"
 
   initialize: (serializeState) ->
-    atom.workspaceView.command "soy-templates:toggle", => @toggle()
+    atom.workspaceView.command "language-soy:toggle", => @toggle()
 
   # Returns an object that can be retrieved when package is activated
   serialize: ->
@@ -17,7 +17,7 @@ class SoyTemplatesView extends View
     @detach()
 
   toggle: ->
-    console.log "SoyTemplatesView was toggled!"
+    console.log "LanguageSoyView was toggled!"
     if @hasParent()
       @detach()
     else

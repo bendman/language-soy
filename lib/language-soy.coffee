@@ -1,13 +1,13 @@
-SoyTemplatesView = require './soy-templates-view'
+LanguageSoyView = require './language-soy-view'
 
 module.exports =
-  soyTemplatesView: null
+  languageSoyView: null
 
   activate: (state) ->
-    @soyTemplatesView = new SoyTemplatesView(state.soyTemplatesViewState)
+    @languageSoyView = new LanguageSoyView(state.languageSoyViewState)
 
   deactivate: ->
-    @soyTemplatesView.destroy()
+    @languageSoyView.destroy()
 
   serialize: ->
-    soyTemplatesViewState: @soyTemplatesView.serialize()
+    languageSoyViewState: @languageSoyView.serialize()

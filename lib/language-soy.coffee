@@ -1,4 +1,4 @@
-LanguageSoyView = require './language-soy-view'
+LanguageSoyView = require 'language-soy-view'
 
 module.exports =
   languageSoyView: null

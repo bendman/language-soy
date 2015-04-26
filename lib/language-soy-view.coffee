@@ -1,4 +1,4 @@
-{View} = require 'atom'
+{$, View} = require 'atom-space-pen-views'
 
 module.exports =
 class LanguageSoyView extends View
@@ -7,7 +7,7 @@ class LanguageSoyView extends View
       @div "The LanguageSoy package is Alive! It's ALIVE!", class: "message"
 
   initialize: (serializeState) ->
-    atom.workspaceView.command "language-soy:toggle", => @toggle()
+    atom.commands.add "atom-workspace", "language-soy:toggle", => @toggle()
 
   # Returns an object that can be retrieved when package is activated
   serialize: ->
@@ -21,4 +21,4 @@ class LanguageSoyView extends View
     if @hasParent()
       @detach()
     else
-      atom.workspaceView.append(this)
+      $(atom.views.getView(atom.workspace)).append(this)

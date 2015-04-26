@@ -1,4 +1,4 @@
-SoyTemplatesView = require '../lib/soy-templates-view'
+SoyTemplatesView = require '../lib/language-soy-view'
 
 describe "SoyTemplatesView", ->
   it "has one valid test", ->

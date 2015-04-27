@@ -1,5 +1,5 @@
-{WorkspaceView} = require 'atom'
-LanguageSoy = require '../lib/language-soy'
+{$, View} = require 'atom-space-pen-views'
+{LanguageSoy} = require '../lib/language-soy'
 
 # Use the command `window:run-package-specs` (cmd-alt-ctrl-p) to run specs.
 #
@@ -7,24 +7,24 @@ LanguageSoy = require '../lib/language-soy'
 # or `fdescribe`). Remove the `f` to unfocus the block.
 
 describe "LanguageSoy", ->
-  activationPromise = null
+  [activationPromise, workspaceElement] = [null, null]
 
   beforeEach ->
-    atom.workspaceView = new WorkspaceView
     activationPromise = atom.packages.activatePackage('language-soy')
+    workspaceElement = atom.views.getView(atom.workspace)
 
   describe "when the language-soy:toggle event is triggered", ->
     it "attaches and then detaches the view", ->
-      expect(atom.workspaceView.find('.language-soy')).not.toExist()
+      expect($(workspaceElement).find('.language-soy')).not.toExist()
 
       # This is an activation event, triggering it will cause the package to be
       # activated.
-      atom.workspaceView.trigger 'language-soy:toggle'
+      atom.commands.dispatch workspaceElement, 'language-soy:toggle'
 
       waitsForPromise ->
         activationPromise
 
       runs ->
-        expect(atom.workspaceView.find('.language-soy')).toExist()
-        atom.workspaceView.trigger 'language-soy:toggle'
-        expect(atom.workspaceView.find('.language-soy')).not.toExist()
+        expect($(workspaceElement).find('.language-soy')).toExist()
+        atom.commands.dispatch workspaceElement, 'language-soy:toggle'
+        expect($(workspaceElement).find('.language-soy')).not.toExist()

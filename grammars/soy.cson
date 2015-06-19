@@ -24,55 +24,24 @@
     'end': '\\n'
   }
   {
-    'match': '{(namespace|delpackage)\\s+((?!})(\\w|\\.)+)}'
-    'captures': {
-      '1': 'name': 'storage.modifier.js'
-      '2': 'name': 'entity.name.function.js'
-    }
+    'include': '#namespace'
   }
   {
-    'begin': '{(template)\\s+\\.((?!}).+)}'
-    'beginCaptures': {
-      '1': 'name': 'storage.type.function.js'
-      '2': 'name': 'entity.name.function.js'
-    }
-    'name': 'template.content.soy'
-    'patterns': [
-      {
-        'include': '$self'
-      }
-      {
-        'include': '#commands'
-      }
-      {
-        'include': '#procedures'
-      }
-      {
-        'include': 'text.html.basic'
-      }
-    ]
-    'end': '{/(template)}'
-    'endCaptures': {
-      '1': {
-        'name': 'storage.type.function.js'
-      }
-    }
+    'include': '#template'
+  }
+  {
+    'include': '#text.html.basic'
   }
 ]
 'repository': {
   'procedures': {
     'patterns': [
       {
-        'match': '\\$\\w+'
+        'match': '\\$[\\w\\.]+'
         'name': 'variable.language.js'
       }
       {
-        'begin': '\''
-        'name': 'string.quoted.single.js'
-        'end': '\''
-      }
-      {
-        'match': '(==|!=|\\+|-)'
+        'match': '(==|!=|\\+|-|in)'
         'name': 'keyword.operator.js'
       }
       {
@@ -92,7 +61,7 @@
         'captures': '1': 'name': 'constant.language.js'
       }
       {
-        'begin': '{(else(if)?|/?switch|case|default|ifempty|/?foreach|print|/?if)'
+        'begin': '{(else(if)?|/?switch|case|default|ifempty|/?foreach|print|/?if|/?for)'
         'captures': '1': 'name': 'keyword.control.js'
         'patterns': [
           {
@@ -112,10 +81,127 @@
         'end': '{/(literal)}'
         'endCaptures': '1': 'name': 'keyword.control.js'
       }
+    ]
+  }
+  'namespace': {
+    'patterns': [
+      {
+        'begin': '\{(namespace|delpackage)\\s+([\\w\\.]+)'
+        'beginCaptures': {
+          '1': 'name': 'storage.modifier.js'
+          '2': 'name': 'entity.name.function.js'
+        }
+        'end': '\}'
+        'patterns': [
+          {
+            'include': '#attributes'
+          }
+        ]
+      }
+    ]
+  }
+  'templateName': {
+    'patterns': [
+      {
+        'match': '(\\.[\\.\\w]+)'
+        'captures': {
+          '1': 'name': 'entity.name.function.js'
+        }
+        'name': 'template.name.soy'
+      }
+    ]
+  }
+  'template': {
+    'patterns': [
+      {
+        'begin': '\{(template|deltemplate)\\b'
+        'beginCaptures': {
+          '1': 'name': 'storage.type.function.js'
+        }
+        'name': 'template.tag.soy'
+        'end': '\/(template|deltemplate)\}'
+        'endCaptures': {
+          '1': 'name': 'storage.type.function.js'
+        }
+        'patterns': [
+          {
+            'include': '#templateName'
+          }
+          {
+            'include': '#attributes'
+          }
+          {
+            'begin': '(?!<\/(template|deltemplate))(\})'
+            'end': '(\{)(?=\/(?:template|deltemplate))'
+            'patterns': [
+              {
+                'include': 'text.html.basic'
+              }
+              {
+                'include': '#commands'
+              }
+              {
+                'include': '#procedures'
+              }
+              {
+                'include': '#call'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  'call': {
+    'patterns': [
       {
         'begin': '{/?(call)'
         'captures': '1': 'name': 'keyword.control.js'
         'end': '/?}'
+        'patterns': [
+          {
+            'include': '#templateName'
+          }
+          {
+            'include': '#attributes'
+          }
+        ]
+      }
+    ]
+  }
+  'attributes': {
+    'patterns': [
+      {
+        'include': '#attributeSingleQuote'
+      }
+      {
+        'include': '#attributeDoubleQuote'
+      }
+    ]
+  }
+  'attributeSingleQuote': {
+    'patterns': [
+      {
+        'match': '([a-zA-Z0-9:-]+)\\s*(=)\\s*(\'[^\']*\')'
+        'captures': {
+          '1': 'name': 'entity.other.attribute-name.soy'
+          '2': 'name': 'keyword.operator.soy'
+          '3': 'name': 'string.quoted.single.soy'
+        }
+        'name': 'template.attribute.soy'
+      }
+    ]
+  }
+  'attributeDoubleQuote': {
+    'patterns': [
+      {
+        'match': '([a-zA-Z0-9:-]+)\\s*(=)\\s*(\"[^\"]*\")'
+        'captures': {
+          '1': 'name': 'entity.other.attribute-name.soy'
+          '2': 'name': 'keyword.operator.soy'
+          '3': 'name': 'string.quoted.single.soy'
+        }
+        'name': 'template.attribute.soy'
       }
     ]
   }

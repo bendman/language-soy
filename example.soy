@@ -592,3 +592,24 @@
   <hr>
   <b>{$exampleNum}. {$exampleName}</b><br>
 {/template}
+
+
+/**
+ * Template with template parameters.
+ */
+{template .demoComments}
+  {@param test: any}
+  {@param test: int}
+  {@param? test: int}
+  {@param test: ?}
+  {@param test: a.v.c}
+  {@param? test: list<int>}
+  {@param test: map<int, a>}
+  {@param? test: int|string}
+
+  blah blah<br>  // comment comment
+  /* comment
+     comment */
+  // Note: The '//' below doesn't start a comment because it's preceded by a non-whitespace.
+  http://www.google.com<br>
+{/template}

@@ -38,7 +38,7 @@
     'patterns': [
       {
         'match': '\\$[\\w\\.]+'
-        'name': 'variable.language.js'
+        'name': 'variable.other.js'
       }
       {
         'match': '(==|!=|\\+|-|in)'
@@ -88,8 +88,8 @@
       {
         'begin': '\{(namespace|delpackage)\\s+([\\w\\.]+)'
         'beginCaptures': {
-          '1': 'name': 'storage.modifier.js'
-          '2': 'name': 'entity.name.function.js'
+          '1': 'name': 'storage.type.function'
+          '2': 'name': 'entity.name.section.js'
         }
         'end': '\}'
         'patterns': [
@@ -105,7 +105,7 @@
       {
         'match': '(\\.[\\.\\w]+)'
         'captures': {
-          '1': 'name': 'entity.name.function.js'
+          '1': 'name': 'entity.name.section.js'
         }
         'name': 'template.name.soy'
       }
@@ -116,12 +116,12 @@
       {
         'begin': '\{(template|deltemplate)\\b'
         'beginCaptures': {
-          '1': 'name': 'storage.type.function.js'
+          '1': 'name': 'storage.type.function'
         }
         'name': 'template.tag.soy'
         'end': '\/(template|deltemplate)\}'
         'endCaptures': {
-          '1': 'name': 'storage.type.function.js'
+          '1': 'name': 'storage.type.function'
         }
         'patterns': [
           {
@@ -135,18 +135,77 @@
             'end': '(\{)(?=\/(?:template|deltemplate))'
             'patterns': [
               {
-                'include': 'text.html.basic'
-              }
-              {
-                'include': '#commands'
-              }
-              {
-                'include': '#procedures'
-              }
-              {
-                'include': '#call'
+                'include': '#templateContent'
               }
             ]
+          }
+        ]
+      }
+    ]
+  }
+  'templateContent': {
+    'patterns': [
+      {
+        'include': 'text.html.basic'
+      }
+      {
+        'include': '#commands'
+      }
+      {
+        'include': '#procedures'
+      }
+      {
+        'include': '#call'
+      }
+      {
+        'include': '#msg'
+      }
+    ]
+  }
+  'msg': {
+    'patterns': [
+      {
+        'begin': '\{(msg)\\b'
+        'beginCaptures': {
+          '1': 'name': 'entity.name.tag'
+        }
+        'name': 'msg.tag.soy'
+        'end': '\/(msg)\}'
+        'endCaptures': {
+          '1': 'name': 'entity.name.tag'
+        }
+        'patterns': [
+          {
+            'include': '#attributes'
+          }
+          {
+            'begin': '(?!<\/msg)\}'
+            'end': '\{(?=\/msg)'
+            'patterns': [
+              {
+                'include': '#templateContent'
+              }
+              {
+                'include': '#fallbackMsg'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  'fallbackMsg': {
+    'patterns': [
+      {
+        'begin': '\{(fallbackmsg)\\b'
+        'beginCaptures': {
+          '1': 'name': 'entity.name.tag'
+        }
+        'name': 'fallbackmsg.tag.soy'
+        'end': '\}'
+        'patterns': [
+          {
+            'include': '#attributes'
           }
         ]
       }

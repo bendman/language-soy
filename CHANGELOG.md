@@ -1,3 +1,3 @@
-## 0.1.0 - First Release
-* Every feature added
-* Every bug fixed
+## 0.1.3 - Maintenance Patch
+* Removing deprecated and useless menu cson
+* Attributes/Call/Namespace syntax highlighting

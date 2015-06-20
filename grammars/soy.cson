@@ -61,7 +61,13 @@
         'captures': '1': 'name': 'constant.language.js'
       }
       {
-        'begin': '{(else(if)?|/?switch|case|default|ifempty|/?foreach|print|/?if|/?for)'
+        'include': '#if'
+      }
+      {
+        'include': '#foreach'
+      }
+      {
+        'begin': '{(/?switch|case|default|print|\/?for)'
         'captures': '1': 'name': 'keyword.control.js'
         'patterns': [
           {
@@ -101,71 +107,67 @@
     ]
   }
   'templateName': {
-    'patterns': [
-      {
-        'match': '(\\.[\\.\\w]+)'
-        'captures': {
-          '1': 'name': 'entity.name.function.js'
-        }
-        'name': 'template.name.soy'
-      }
-    ]
+    'match': '(\\.[\\.\\w]+)'
+    'captures': {
+      '1': 'name': 'entity.name.function.js'
+    }
+    'name': 'template.name.soy'
   }
   'template': {
+    'begin': '\{(template|deltemplate)\\b'
+    'beginCaptures': {
+      '1': 'name': 'storage.type.function.js'
+    }
+    'name': 'template.tag.soy'
+    'end': '\/(\\1)\}'
+    'endCaptures': {
+      '1': 'name': 'storage.type.function.js'
+    }
     'patterns': [
       {
-        'begin': '\{(template|deltemplate)\\b'
-        'beginCaptures': {
-          '1': 'name': 'storage.type.function.js'
-        }
-        'name': 'template.tag.soy'
-        'end': '\/(template|deltemplate)\}'
-        'endCaptures': {
-          '1': 'name': 'storage.type.function.js'
-        }
+        'include': '#templateName'
+      }
+      {
+        'include': '#attributes'
+      }
+      {
+        'begin': '(?!<\/(template|deltemplate))(\})'
+        'end': '(\{)(?=\/(?:template|deltemplate))'
         'patterns': [
           {
-            'include': '#templateName'
-          }
-          {
-            'include': '#attributes'
-          }
-          {
-            'begin': '(?!<\/(template|deltemplate))(\})'
-            'end': '(\{)(?=\/(?:template|deltemplate))'
-            'patterns': [
-              {
-                'include': 'text.html.basic'
-              }
-              {
-                'include': '#commands'
-              }
-              {
-                'include': '#procedures'
-              }
-              {
-                'include': '#call'
-              }
-            ]
+            'include': '#templateContent'
           }
         ]
       }
+    ]
+  }
+  'templateContent': {
+    'patterns': [
+      {
+        'include': 'text.html.basic'
+      }
+      {
+        'include': '#commands'
+      }
+      {
+        'include': '#procedures'
+      }
+      {
+        'include': '#call'
+      }
+
     ]
   }
   'call': {
+    'begin': '{/?(call)'
+    'captures': '1': 'name': 'keyword.control.js'
+    'end': '/?}'
     'patterns': [
       {
-        'begin': '{/?(call)'
-        'captures': '1': 'name': 'keyword.control.js'
-        'end': '/?}'
-        'patterns': [
-          {
-            'include': '#templateName'
-          }
-          {
-            'include': '#attributes'
-          }
-        ]
+        'include': '#templateName'
+      }
+      {
+        'include': '#attributes'
       }
     ]
   }
@@ -180,28 +182,138 @@
     ]
   }
   'attributeSingleQuote': {
+    'match': '([a-zA-Z0-9:-]+)\\s*(=)\\s*(\'[^\']*\')'
+    'captures': {
+      '1': 'name': 'entity.other.attribute-name.soy'
+      '2': 'name': 'keyword.operator.soy'
+      '3': 'name': 'string.quoted.single.soy'
+    }
+    'name': 'template.attribute.soy'
+  }
+  'attributeDoubleQuote': {
+    'match': '([a-zA-Z0-9:-]+)\\s*(=)\\s*(\"[^\"]*\")'
+    'captures': {
+      '1': 'name': 'entity.other.attribute-name.soy'
+      '2': 'name': 'keyword.operator.soy'
+      '3': 'name': 'string.quoted.single.soy'
+    }
+    'name': 'template.attribute.soy'
+  }
+  'function': {
+    'match': '\\b(isNonnull|isFirst|isLast|index|hasData|length|keys|round|floor|ceiling|min|max|randomInt)\\b'
+    'captures': {
+      '1': 'name': 'support.function.soy'
+    }
+    'name': 'function.name.soy'
+  }
+  'operator': {
+    'match': '(==|!=|\\band\\b|\\bor\\b|\\bnot\\b|-|\\+|(?<!\{)\/|\\?:|:)'
+    'captures': {
+      '1': 'name': 'keyword.operator.soy'
+    }
+    'name': 'operator.soy'
+  }
+  'variable': {
+    'match': '(\\$[\\w\\.]+)'
+    'captures': {
+      '1': 'name': 'variable.other.soy'
+    }
+    'name': 'variable.tag.soy'
+  }
+  'expression': {
     'patterns': [
       {
-        'match': '([a-zA-Z0-9:-]+)\\s*(=)\\s*(\'[^\']*\')'
-        'captures': {
-          '1': 'name': 'entity.other.attribute-name.soy'
-          '2': 'name': 'keyword.operator.soy'
-          '3': 'name': 'string.quoted.single.soy'
-        }
-        'name': 'template.attribute.soy'
+        'include': '#function'
+      }
+      {
+        'include': '#operator'
+      }
+      {
+        'include': '#variable'
       }
     ]
   }
-  'attributeDoubleQuote': {
+  'if': {
+    'name': 'if.tag.soy'
+    'begin': '\{(if)\\b'
+    'beginCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
+    'end': '\/(if)\}'
+    'endCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
     'patterns': [
       {
-        'match': '([a-zA-Z0-9:-]+)\\s*(=)\\s*(\"[^\"]*\")'
+        'include': '#expression'
+      }
+      {
+        'begin': '(?!<\/if)\}'
+        'end': '\{(?=\/(?:if))'
+        'patterns': [
+          {
+            'name': 'elseif.tag.soy'
+            'begin': '\{(elseif)\\b'
+            'beginCaptures': {
+              '1': 'name': 'keyword.control.js'
+            }
+            'end': '\}'
+            'patterns': [
+              {
+                'include': '#expression'
+              }
+            ]
+          }
+          {
+            'name': 'else.tag.soy'
+            'match': '\{(else)\}'
+            'captures': {
+              '1': 'name': 'keyword.control.js'
+            }
+          }
+          {
+            'include': '#templateContent'
+          }
+        ]
+      }
+    ]
+  }
+  'foreach': {
+    'name': 'foreach.tag.soy'
+    'begin': '\{(foreach)\\b'
+    'beginCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
+    'end': '\/(foreach)\}'
+    'endCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
+    'patterns': [
+      {
+        'include': '#variable'
+      }
+      {
+        'match': '\\b(in)\\b'
         'captures': {
-          '1': 'name': 'entity.other.attribute-name.soy'
-          '2': 'name': 'keyword.operator.soy'
-          '3': 'name': 'string.quoted.single.soy'
+          '1': 'name': 'keyword.operator.soy'
         }
-        'name': 'template.attribute.soy'
+        'name': 'operator.soy'
+      }
+      {
+        'begin': '(?!<\/foreach)\}'
+        'end': '\{(?=\/(?:foreach))'
+        'patterns': [
+          {
+            'name': 'ifempty.tag.soy'
+            'match': '\{(ifempty)\}'
+            'captures': {
+              '1': 'name': 'keyword.control.js'
+            }
+          }
+          {
+            'include': '#templateContent'
+          }
+        ]
       }
     ]
   }

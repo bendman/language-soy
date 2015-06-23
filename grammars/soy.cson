@@ -57,7 +57,10 @@
         'include': '#foreach'
       }
       {
-        'begin': '{(/?switch|case|default|print|\/?for)'
+        'include': '#for'
+      }
+      {
+        'begin': '{(/?switch|case|default|print)'
         'captures': '1': 'name': 'keyword.control.js'
         'patterns': [
           {
@@ -385,6 +388,39 @@
               '1': 'name': 'keyword.control.js'
             }
           }
+          {
+            'include': '#templateContent'
+          }
+        ]
+      }
+    ]
+  }
+  'for': {
+    'name': 'for.tag.soy'
+    'begin': '\{(for)\\b'
+    'beginCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
+    'end': '\/(\\1)\}'
+    'endCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
+    'patterns': [
+      {
+        'match': '\\b(in)\\s+(range)'
+        'captures': {
+          '1': 'name': 'keyword.operator.soy'
+          '2': 'name': 'support.function.soy'
+        }
+        'name': 'operator.soy'
+      }
+      {
+        'include': '#expression'
+      }
+      {
+        'begin': '(?!<\/for)\}'
+        'end': '\{(?=\/(?:for))'
+        'patterns': [
           {
             'include': '#templateContent'
           }

@@ -5,23 +5,10 @@
 ]
 'patterns': [
   {
-    'begin': '/\\*'
-    'name': 'comment.block.js'
-    'patterns': [
-      {
-        'match': '(@param)\\s+(\\w+)'
-        'captures': {
-          '1': 'name': 'storage.modifier.js'
-          '2': 'name': 'variable.parameter.function.js'
-        }
-      }
-    ]
-    'end': '\\*/'
+    'include': '#templateComment'
   }
   {
-    'begin': '//'
-    'name': 'comment.line.double-slash.js'
-    'end': '\\n'
+    'include': '#comment'
   }
   {
     'include': '#namespace'
@@ -92,6 +79,15 @@
       }
     ]
   }
+  'comment': {
+    'match': '\/\/[^\\n]*\\n?'
+    'name': 'comment.line.double-slash.js'
+  }
+  'multilineComment': {
+    'begin': '\/\\*'
+    'name': 'comment.block.js'
+    'end': '\\*\/'
+  }
   'namespace': {
     'begin': '\{(namespace|delpackage)\\s+([\\w\\.]+)'
     'beginCaptures': {
@@ -114,17 +110,11 @@
       '4': 'name': 'entity.name.function.js'
     }
   }
-  'templateName': {
-    'match': '(\\.[\\.\\w]+)'
-    'captures': {
-      '1': 'name': 'entity.name.function.js'
-    }
-    'name': 'template.name.soy'
-  }
   'template': {
-    'begin': '\{(template|deltemplate)\\b'
+    'begin': '\{(template|deltemplate)\\s+(\\.[\\.\\w]+)'
     'beginCaptures': {
       '1': 'name': 'storage.type.function.js'
+      '2': 'name': 'entity.name.function.js'
     }
     'name': 'template.tag.soy'
     'end': '\/(\\1)\}'
@@ -132,9 +122,6 @@
       '1': 'name': 'storage.type.function.js'
     }
     'patterns': [
-      {
-        'include': '#templateName'
-      }
       {
         'include': '#attributes'
       }
@@ -148,6 +135,20 @@
         ]
       }
     ]
+  }
+  'templateComment': {
+    'begin': '\/\\*'
+    'name': 'comment.block.js'
+    'patterns': [
+      {
+        'match': '(@param)\\s+(\\w+)'
+        'captures': {
+          '1': 'name': 'storage.modifier.js'
+          '2': 'name': 'variable.parameter.function.js'
+        }
+      }
+    ]
+    'end': '\\*\/'
   }
   'templateContent': {
     'patterns': [
@@ -168,6 +169,12 @@
       }
       {
         'include': '#msg'
+      }
+      {
+        'include': '#comment'
+      }
+      {
+        'include': '#multilineComment'
       }
     ]
   }
@@ -227,13 +234,13 @@
     ]
   }
   'call': {
-    'begin': '{/?(call)'
-    'captures': '1': 'name': 'keyword.control.js'
+    'begin': '{/?(call)\\s+(\\.[\\.\\w]+)'
+    'captures': {
+      '1': 'name': 'keyword.control.js'
+      '2': 'name': 'entity.name.function.js'
+    }
     'end': '/?}'
     'patterns': [
-      {
-        'include': '#templateName'
-      }
       {
         'include': '#attributes'
       }

@@ -27,6 +27,9 @@
     'include': '#namespace'
   }
   {
+    'include': '#alias'
+  }
+  {
     'include': '#template'
   }
   {
@@ -97,6 +100,19 @@
             'include': '#attributes'
           }
         ]
+      }
+    ]
+  }
+  'alias': {
+    'patterns': [
+      {
+        'match': '\{(alias)\\s+([\\w\\.]+)(?:\\s+(as)\\s+([\\w\\.]+))?\\s*\}'
+        'captures': {
+          '1': 'name': 'storage.modifier.js'
+          '2': 'name': 'entity.name.function.js'
+          '3': 'name': 'keyword.operator.soy'
+          '4': 'name': 'entity.name.function.js'
+        }
       }
     ]
   }

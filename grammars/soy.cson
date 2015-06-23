@@ -151,6 +151,9 @@
             'end': '(\{)(?=\/(?:template|deltemplate))'
             'patterns': [
               {
+                'include': '#templateParam'
+              }
+              {
                 'include': 'text.html.basic'
               }
               {
@@ -168,11 +171,25 @@
       }
     ]
   }
+  'templateParam': {
+    'patterns': [
+      {
+        'name': 'template.param.soy'
+        'match': '\{(\@param[\?]?)\\s+(\\w+)\\s*(:)\\s*([\\w\\.\\|]+|[\?]|list\<[\\w]+\>|map\<\\w+,\\s*\\w+\>)\\s*\}'
+        'captures': {
+          '1': 'name': 'storage.type.parameter.soy'
+          '2': 'name': 'variable.parameter.soy'
+          '3': 'name': 'keyword.operator.soy'
+          '4': 'name': 'storage.type.parameter.soy'
+        }
+      }
+    ]
+  }
   'call': {
     'patterns': [
       {
         'begin': '{/?(call)'
-        'captures': '1': 'name': 'keyword.control.js'
+        'captures': '1': 'name': 'keyword.control.soy'
         'end': '/?}'
         'patterns': [
           {

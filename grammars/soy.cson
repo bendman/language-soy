@@ -237,17 +237,31 @@
     ]
   }
   'call': {
-    'begin': '{/?(call)\\s+(\\.[\\.\\w]+)'
-    'captures': {
+    'begin': '{(call)\\s+([\\.\\w]+)'
+    'beginCaptures': {
       '1': 'name': 'keyword.control.js'
       '2': 'name': 'entity.name.function.js'
     }
-    'end': '/?}'
+    'end': '/(call)?}'
+    'endCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
     'patterns': [
       {
         'include': '#attributes'
       }
+      {
+        'begin': '(?!<\/call)\}'
+        'end': '\{(?=\/(?:call))'
+        'patterns': [
+          {
+            'include': '#callParam'
+          }
+        ]
+      }
     ]
+  }
+  'callParam': {
   }
   'attributes': {
     'patterns': [

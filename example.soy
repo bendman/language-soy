@@ -361,6 +361,20 @@
 
 
 /**
+ * Demo 'call' with a 'param' block with complex expression.
+ * @param name The name of the person who took the trip.
+ */
+{template .demoCallWithParamBlock}
+  // Pass 2 parameters, one of which is built using Soy code.
+  {call .tripReport_}
+    {param name: $name /}
+    {param smallerNum: $pair.smallerInt ? $pair.smallerInt : $pair.largerInt - 100 /}
+  {/call}
+  <br>
+{/template}
+
+
+/**
  * Private helper for demoCallWithoutParams, demoCallWithParams, and demoCallWithParamBlock.
  * Reports on a trip.
  * @param? name The name of the person who took a trip (optional).
@@ -465,9 +479,9 @@
 
     // The following print statement prints "70s", "80s", "90s", or "00s". Note that "00s" is a
     // special case since using the same expression would yield "0s", not "00s".
-    {sp}{$student.year < 2000 ? round($student.year - 1905, -1) + 's' : '00s'}.
+    {sp}{$student.year < 2000 ? round($student.year - 1905, 1) + 's' : '00s'}.
     // Equivalent to previous line.
-    {sp}{if $student.year < 2000}{round($student.year - 1905, -1)}{else}00{/if}s.
+    {sp}{if $student.year < 2000}{round($student.year - 1905, 1)}{else}00{/if}s.
 
     <br>
   {/foreach}

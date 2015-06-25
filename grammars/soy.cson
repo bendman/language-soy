@@ -252,7 +252,7 @@
       }
       {
         'begin': '(?!<\/call)\}'
-        'end': '\{(?=\/(?:call))'
+        'end': '\{(?=\/call)'
         'patterns': [
           {
             'include': '#callParam'
@@ -262,6 +262,38 @@
     ]
   }
   'callParam': {
+    'begin': '\{(param)\\s+([\\w]+)'
+    'beginCaptures': {
+      '1': 'name': 'keyword.control.js'
+      '2': 'name': 'entity.name.function.js'
+    }
+    'end': '\/(param)?\}'
+    'endCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
+    'patterns': [
+      {
+        'begin': '\:'
+        'end': '(?=\/\})'
+        'patterns': [
+          {
+            'include': '#expression'
+          }
+        ]
+      }
+      {
+        'begin': '\}'
+        'end': '\{(?=\/param\})'
+        'patterns': [
+          {
+            'include': '#templateContent'
+          }
+        ]
+      }
+      {
+        'include': '#attributes'
+      }
+    ]
   }
   'attributes': {
     'patterns': [
@@ -312,6 +344,10 @@
     }
     'name': 'variable.tag.soy'
   }
+  'constant': {
+    'match': '\\W?(true|false|null|\\d+)'
+    'captures': '1': 'name': 'constant.language.js'
+  }
   'expression': {
     'patterns': [
       {
@@ -322,6 +358,9 @@
       }
       {
         'include': '#variable'
+      }
+      {
+        'include': '#constant'
       }
     ]
   }

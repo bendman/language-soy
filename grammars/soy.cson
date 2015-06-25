@@ -19,9 +19,6 @@
   {
     'include': '#template'
   }
-  {
-    'include': '#text.html.basic'
-  }
 ]
 'repository': {
   'procedures': {

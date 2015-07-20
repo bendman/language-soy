@@ -80,7 +80,7 @@
     ]
   }
   'comment': {
-    'match': '\/\/[^\\n]*\\n?'
+    'match': '\\s\/\/[^\\n]*\\n?'
     'name': 'comment.line.double-slash.js'
   }
   'multilineComment': {

@@ -639,3 +639,17 @@
   // Note: The '//' below doesn't start a comment because it's preceded by a non-whitespace.
   http://www.google.com<br>
 {/template}
+
+
+/**
+ * Template with let expressions.
+ */
+{template .demoLet}
+  {let $label: 'test' /}
+  {let $count: 10 /}
+  {let $expression: $processing and not $isNew and $count == $index + 123 /}
+  {let $template}
+    Test template
+    <b>Header</b>
+  {/let}
+{/template}

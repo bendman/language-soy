@@ -176,6 +176,9 @@
       {
         'include': '#multilineComment'
       }
+      {
+        'include': '#let'
+      }
     ]
   }
   'templateParam': {
@@ -475,6 +478,40 @@
             'include': '#templateContent'
           }
         ]
+      }
+    ]
+  }
+  'let': {
+    'begin': '\{(let)\\s+(\\$[\\w]+)'
+    'beginCaptures': {
+      '1': 'name': 'keyword.control.js'
+      '2': 'name': 'entity.name.function.js'
+    }
+    'end': '\/(\\1)?\}'
+    'endCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
+    'patterns': [
+      {
+        'begin': '\:'
+        'end': '(?=\/\})'
+        'patterns': [
+          {
+            'include': '#expression'
+          }
+        ]
+      }
+      {
+        'begin': '\}'
+        'end': '\{(?=\/let\})'
+        'patterns': [
+          {
+            'include': '#templateContent'
+          }
+        ]
+      }
+      {
+        'include': '#attributes'
       }
     ]
   }

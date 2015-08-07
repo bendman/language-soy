@@ -653,3 +653,23 @@
     <b>Header</b>
   {/let}
 {/template}
+
+
+/**
+ * Demo deltemplate with delcall.
+ */
+{deltemplate .demoComments}
+  blah blah<br>  // comment comment
+  /* comment
+     comment */
+  // Note: The '//' below doesn't start a comment because it's preceded by a non-whitespace.
+  http://www.google.com<br>
+
+  // Demo for delcall
+  {delcall .tripReport_ data="$tripInfo" /}<br>
+
+  // Demo for delcall with parameters
+  {delcall .tripReport_ data="all"}
+    {param destination: $destination /}
+  {/delcall}<br>
+{/deltemplate}

@@ -127,7 +127,7 @@
       }
       {
         'begin': '(?!<\/(template|deltemplate))(\})'
-        'end': '(\{)(?=\/(?:template|deltemplate))'
+        'end': '(\{)(?=\/(?:\\1))'
         'patterns': [
           {
             'include': '#templateContent'
@@ -237,12 +237,12 @@
     ]
   }
   'call': {
-    'begin': '{(call)\\s+([\\.\\w]+)'
+    'begin': '{(call|delcall)\\s+([\\.\\w]+)'
     'beginCaptures': {
       '1': 'name': 'keyword.control.js'
       '2': 'name': 'entity.name.function.js'
     }
-    'end': '/(call)?}'
+    'end': '/(\\1)?}'
     'endCaptures': {
       '1': 'name': 'keyword.control.js'
     }
@@ -251,8 +251,8 @@
         'include': '#attributes'
       }
       {
-        'begin': '(?!<\/call)\}'
-        'end': '\{(?=\/call)'
+        'begin': '(?!<\/(call|delcall))\}'
+        'end': '\{(?=\/\\1)'
         'patterns': [
           {
             'include': '#callParam'

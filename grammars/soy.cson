@@ -57,7 +57,10 @@
         'include': '#for'
       }
       {
-        'begin': '{(/?switch|case|default|print)'
+        'include': '#switch'
+      }
+      {
+        'begin': '{(print)'
         'captures': '1': 'name': 'keyword.control.js'
         'patterns': [
           {
@@ -514,5 +517,56 @@
         'include': '#attributes'
       }
     ]
+  }
+  'switch': {
+    'name': 'switch.tag.soy'
+    'begin': '\{(switch)\\b'
+    'beginCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
+    'end': '\/(\\1)\}'
+    'endCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
+    'patterns': [
+      {
+        'include': '#expression'
+      }
+      {
+        'begin': '\}'
+        'end': '\{(?=\/switch\})'
+        'patterns': [
+          {
+            'include': '#templateContent'
+          }
+          {
+            'include': '#switch_case'
+          }
+          {
+            'include': '#switch_default'
+          }
+        ]
+      }
+    ]
+  }
+  'switch_case': {
+    'name': 'case.tag.soy'
+    'begin': '\{(case)\\b'
+    'beginCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
+    'end': '\}'
+    'patterns': [
+      {
+        'include': '#expression'
+      }
+    ]
+  }
+  'switch_default': {
+    'name': 'default.tag.soy'
+    'match': '\{(default)\}'
+    'captures': {
+      '1': 'name': 'keyword.control.js'
+    }
   }
 }

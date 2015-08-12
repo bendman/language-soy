@@ -108,6 +108,8 @@
   {$boo}<br>  // print a data value
   {1 + $two}<br>  // print the result of an expression that uses a data value
   {GLOBAL_INT}, {GLOBAL_BOOL}.<br>  // print globals
+  {print $boo|truncate:10,false}
+  {print $foo + $boo|revert|revert}
 {/template}
 
 

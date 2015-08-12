@@ -60,25 +60,10 @@
         'include': '#switch'
       }
       {
-        'begin': '{(print)'
-        'captures': '1': 'name': 'keyword.control.js'
-        'patterns': [
-          {
-            'include': '#procedures'
-          }
-        ]
-        'end': '}'
+        'include': '#literal'
       }
       {
-        'begin': '{(literal)}'
-        'beginCaptures': '1': 'name': 'keyword.control.js'
-        'patterns': [
-          {
-            'include': 'text.html.basic'
-          }
-        ]
-        'end': '{/(literal)}'
-        'endCaptures': '1': 'name': 'keyword.control.js'
+        'include': '#print'
       }
     ]
   }
@@ -159,15 +144,6 @@
         'include': '#templateParam'
       }
       {
-        'include': 'text.html.basic'
-      }
-      {
-        'include': '#commands'
-      }
-      {
-        'include': '#procedures'
-      }
-      {
         'include': '#call'
       }
       {
@@ -181,6 +157,12 @@
       }
       {
         'include': '#let'
+      }
+      {
+        'include': '#commands'
+      }
+      {
+        'include': 'text.html.basic'
       }
     ]
   }
@@ -215,10 +197,10 @@
             'end': '\{(?=\/msg)'
             'patterns': [
               {
-                'include': '#templateContent'
+                'include': '#fallbackMsg'
               }
               {
-                'include': '#fallbackMsg'
+                'include': '#templateContent'
               }
             ]
           }
@@ -301,14 +283,14 @@
   'attributes': {
     'patterns': [
       {
-        'include': '#attributeSingleQuote'
+        'include': '#attribute-quoted-single'
       }
       {
-        'include': '#attributeDoubleQuote'
+        'include': '#attribute-quoted-double'
       }
     ]
   }
-  'attributeSingleQuote': {
+  'attribute-quoted-single': {
     'match': '([a-zA-Z0-9:-]+)\\s*(=)\\s*(\'[^\']*\')'
     'captures': {
       '1': 'name': 'entity.other.attribute-name.soy'
@@ -317,7 +299,7 @@
     }
     'name': 'template.attribute.soy'
   }
-  'attributeDoubleQuote': {
+  'attribute-quoted-double': {
     'match': '([a-zA-Z0-9:-]+)\\s*(=)\\s*(\"[^\"]*\")'
     'captures': {
       '1': 'name': 'entity.other.attribute-name.soy'
@@ -351,6 +333,16 @@
     'match': '\\W?(true|false|null|\\d+)'
     'captures': '1': 'name': 'constant.language.js'
   }
+  'string-quoted-single': {
+    'name': 'string.quoted.single'
+    'match': '(\'[^\']*\')'
+    'captures': '1': 'name': 'string.quoted.single.soy'
+  }
+  'string-quoted-double': {
+    'name': 'string.quoted.double'
+    'match': '(\"[^\"]*\")'
+    'captures': '1': 'name': 'string.quoted.double.soy'
+  }
   'expression': {
     'patterns': [
       {
@@ -364,6 +356,12 @@
       }
       {
         'include': '#constant'
+      }
+      {
+        'include': '#string-quoted-single'
+      }
+      {
+        'include': '#string-quoted-double'
       }
     ]
   }
@@ -513,9 +511,6 @@
           }
         ]
       }
-      {
-        'include': '#attributes'
-      }
     ]
   }
   'switch': {
@@ -537,19 +532,19 @@
         'end': '\{(?=\/switch\})'
         'patterns': [
           {
+            'include': '#switch-case'
+          }
+          {
+            'include': '#switch-default'
+          }
+          {
             'include': '#templateContent'
-          }
-          {
-            'include': '#switch_case'
-          }
-          {
-            'include': '#switch_default'
           }
         ]
       }
     ]
   }
-  'switch_case': {
+  'switch-case': {
     'name': 'case.tag.soy'
     'begin': '\{(case)\\b'
     'beginCaptures': {
@@ -562,11 +557,45 @@
       }
     ]
   }
-  'switch_default': {
+  'switch-default': {
     'name': 'default.tag.soy'
     'match': '\{(default)\}'
     'captures': {
       '1': 'name': 'keyword.control.js'
     }
+  }
+  'print': {
+    'name': 'print.tag.soy'
+    'begin': '\{(?:(print)\\s+)?'
+    'beginCaptures': {
+      '1': 'name': 'keyword.control.js'
+    }
+    'end': '\}'
+    'patterns': [
+      {
+        'include': '#expression'
+      }
+      {
+        'include': '#print-directive'
+      }
+    ]
+  }
+  'print-directive': {
+    'name': 'directive.print.tag.soy'
+    'match': '\\|\\s*(\\w+)'
+    'captures': {
+      '1': 'name': 'support.function.soy'
+    }
+  }
+  'literal': {
+    'begin': '{(literal)}'
+    'beginCaptures': '1': 'name': 'keyword.control.js'
+    'patterns': [
+      {
+        'include': 'text.html.basic'
+      }
+    ]
+    'end': '{/(literal)}'
+    'endCaptures': '1': 'name': 'keyword.control.js'
   }
 }

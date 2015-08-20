@@ -678,3 +678,19 @@
     {param destination: $destination /}
   {/delcall}<br>
 {/deltemplate}
+
+
+/**
+ * Demo mixing soy commands with html attributes.
+ */
+{template .demoMixTagAttributesAndCommangs}
+  <div
+    {if $disabled}disabled="disabled"{else}tabindex="-1"{/if}
+    {switch $attr}
+      {case 'title'}
+        title="{$title}"
+      {default}
+        href="http://example.com"
+    {/switch}
+      >{$content}</div>
+{/template}

@@ -3,15 +3,37 @@
 'fileTypes': [
   'soy'
 ]
-'injections': {
-  'text.html.soy': {
+'injections':
+  'text.html.soy template.tag.soy - literal.tag.soy':
     'patterns': [
+      {
+        'include': '#call'
+      }
+      {
+        'include': '#callParam'
+      }
+      {
+        'include': '#msg'
+      }
+      {
+        'include': '#comment'
+      }
+      {
+        'include': '#let'
+      }
+      {
+        'include': '#special'
+      }
+      {
+        'include': '#condition'
+      }
+      {
+        'include': '#loop'
+      }
       {
         'include': '#print'
       }
     ]
-  }
-}
 'patterns': [
   {
     'include': '#namespace'
@@ -109,34 +131,7 @@
         'include': '#templateParam'
       }
       {
-        'include': '#call'
-      }
-      {
-        'include': '#callParam'
-      }
-      {
-        'include': '#msg'
-      }
-      {
-        'include': '#comment'
-      }
-      {
-        'include': '#let'
-      }
-      {
-        'include': '#special'
-      }
-      {
-        'include': '#condition'
-      }
-      {
-        'include': '#loop'
-      }
-      {
         'include': '#literal'
-      }
-      {
-        'include': '#print'
       }
       {
         'include': 'text.html.basic'
@@ -144,7 +139,7 @@
     ]
   'templateParam':
     'name': 'template.param.soy'
-    'match': '\{(\@param[\?]?)\\s+(\\w+)\\s*(:)\\s*([\\w\\.\\|]+|[\?]|list\<[\\w]+\>|map\<\\w+,\\s*\\w+\>)\\s*\}'
+    'match': '\{(\@param[\?]?)\\s+(\\w+)\\s*(:)\\s*([\\w\\.\\|]+|[\?]|list\<\\w+\>|map\<\\w+,\\s*\\w+\>)\\s*\}'
     'captures':
       '1': 'name': 'storage.type.parameter.soy'
       '2': 'name': 'variable.parameter.soy'
@@ -173,7 +168,7 @@
       }
     ]
   'callParam':
-    'begin': '\{\/?(param)(?:\\s+([\\w]+)(\:)?)?'
+    'begin': '\{\/?(param)(?:\\s+(\\w+)(\:)?)?'
     'beginCaptures':
       '1': 'name': 'keyword.control.js'
       '2': 'name': 'entity.name.function.js'
@@ -207,7 +202,7 @@
     ]
   'function':
     'name': 'function.name.soy'
-    'begin': '\\b([\\w]+)\\s*\\('
+    'begin': '\\b(\\w+)\\s*\\('
     'beginCaptures':
       '1': 'name': 'support.function.soy'
     'end': '\\)'
@@ -289,7 +284,7 @@
     ]
   'let':
     'name': 'let.tag.soy'
-    'begin': '\{\/?(let)(?:\\s+(\\$[\\w]+)\\s*(\:)?\\s*)?'
+    'begin': '\{\/?(let)(?:\\s+(\\$\\w+)\\s*(\:)?\\s*)?'
     'beginCaptures':
       '1': 'name': 'keyword.control.js'
       '2': 'name': 'entity.name.function.js'
@@ -320,6 +315,7 @@
       }
     ]
   'literal':
+    'name': 'literal.tag.soy'
     'begin': '\{(literal)\}'
     'beginCaptures':
       '1': 'name': 'keyword.control.js'

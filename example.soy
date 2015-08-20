@@ -467,6 +467,7 @@
 
     {if isFirst($student)}
       {sp}First.
+      {if $man}Man{else}Woman{/if}
     {elseif isLast($student)}
       {sp}Last.
     // Note: must use floor() in next check since division is floating-point.
@@ -512,6 +513,8 @@
     {/call}
     , ...{rb}.
   {/msg}
+
+  {let $sds:'' data="all"/}
 {/template}
 
 

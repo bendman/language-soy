@@ -14,27 +14,26 @@
 }
 'patterns': [
   {
-    'include': '#templateComment'
-  }
-  {
-    'include': '#comment'
-  }
-  {
     'include': '#namespace'
   }
   {
     'include': '#alias'
   }
   {
+    'include': '#templateComment'
+  }
+  {
     'include': '#template'
+  }
+  {
+    'include': '#comment'
   }
 ]
 'repository': {
   'commands': {
     'patterns': [
       {
-        'match': '{(sp|nil|lb|rb|(?:\\\\)(r|n|t))}'
-        'captures': '1': 'name': 'constant.language.js'
+        'include': '#special'
       }
       {
         'include': '#if'
@@ -56,14 +55,24 @@
       }
     ]
   }
-  'comment': {
-    'match': '\\s\/\/[^\\n]*\\n?'
-    'name': 'comment.line.double-slash.js'
+  'special': {
+    'match': '{(sp|nil|lb|rb|(?:\\\\)(r|n|t))}'
+    'captures': {
+      '1': 'name': 'constant.language.js'
+    }
   }
-  'multilineComment': {
-    'begin': '\/\\*'
-    'name': 'comment.block.js'
-    'end': '\\*\/'
+  'comment': {
+    'patterns': [
+      {
+        'name': 'comment.line.double-slash.js'
+        'match': '\/\/[^\\n]*\\n?'
+      }
+      {
+        'name': 'comment.block.js'
+        'begin': '\/\\*'
+        'end': '\\*\/'
+      }
+    ]
   }
   'namespace': {
     'begin': '\{(namespace|delpackage)\\s+([\\w\\.]+)'
@@ -140,9 +149,6 @@
       }
       {
         'include': '#comment'
-      }
-      {
-        'include': '#multilineComment'
       }
       {
         'include': '#let'

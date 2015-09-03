@@ -108,6 +108,8 @@
   {$boo}<br>  // print a data value
   {1 + $two}<br>  // print the result of an expression that uses a data value
   {GLOBAL_INT}, {GLOBAL_BOOL}.<br>  // print globals
+  {print $boo|truncate:10,false}
+  {print $foo + $boo|revert|revert}
 {/template}
 
 
@@ -639,3 +641,37 @@
   // Note: The '//' below doesn't start a comment because it's preceded by a non-whitespace.
   http://www.google.com<br>
 {/template}
+
+
+/**
+ * Template with let expressions.
+ */
+{template .demoLet}
+  {let $label: 'test' /}
+  {let $count: 10 /}
+  {let $expression: $processing and not $isNew and $count == $index + 123 /}
+  {let $template}
+    Test template
+    <b>Header</b>
+  {/let}
+{/template}
+
+
+/**
+ * Demo deltemplate with delcall.
+ */
+{deltemplate .demoComments}
+  blah blah<br>  // comment comment
+  /* comment
+     comment */
+  // Note: The '//' below doesn't start a comment because it's preceded by a non-whitespace.
+  http://www.google.com<br>
+
+  // Demo for delcall
+  {delcall .tripReport_ data="$tripInfo" /}<br>
+
+  // Demo for delcall with parameters
+  {delcall .tripReport_ data="all"}
+    {param destination: $destination /}
+  {/delcall}<br>
+{/deltemplate}

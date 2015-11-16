@@ -64,11 +64,11 @@
     'patterns': [
       {
         'name': 'comment.line.double-slash.js'
-        'match': '\/\/[^\\n]*\\n?'
+        'match': '(^|\\s+)\/\/.*$\\n?'
       }
       {
         'name': 'comment.block.js'
-        'begin': '\/\\*'
+        'begin': '\/\\*\\*'
         'end': '\\*\/'
       }
     ]
@@ -118,7 +118,7 @@
     'begin': '\/\\*'
     'patterns': [
       {
-        'match': '(@param)\\s+(\\w+)'
+        'match': '(@param[\?]?)\\s+(\\w+)'
         'captures':
           '1': 'name': 'storage.modifier.js'
           '2': 'name': 'variable.parameter.function.js'

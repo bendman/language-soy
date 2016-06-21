@@ -660,6 +660,18 @@
 {/template}
 
 
+/** Caller (basic template, not delegate template). */
+{template .testDelCall}
+  {delcall aaa.bbb.myButton allowemptydefault="false" data="..." /}
+{/template}
+
+/**
+ * Demo deltemplate with full name.
+ */
+{deltemplate aaa.bbb.myButton}
+  ...
+{/deltemplate}
+
 /**
  * Demo deltemplate with delcall.
  */

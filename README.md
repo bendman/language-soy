@@ -2,7 +2,7 @@
 
 # Soy language support in Atom
 
-Adds syntax highlighting to Google Closure Templates.
+Adds syntax highlighting to [Google Closure Templates](https://developers.google.com/closure/templates/).
 
 ![A screenshot of highlighted soy](https://raw.githubusercontent.com/bendman/language-soy/master/soy-screenshot.png)
 

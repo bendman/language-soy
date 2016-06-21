@@ -48,6 +48,9 @@
     'include': '#template'
   }
   {
+    'include': '#deltemplate'
+  }
+  {
     'include': '#comment'
   }
 ]
@@ -92,7 +95,7 @@
       '4': 'name': 'entity.name.function.js'
   'template':
     'name': 'template.tag.soy'
-    'begin': '\{(template|deltemplate)\\s+(\\.[\\.\\w]+)'
+    'begin': '\{(template)\\s+(\\.[\\.\\w]+)'
     'beginCaptures':
       '1': 'name': 'storage.type.function.js'
       '2': 'name': 'entity.name.function.js'
@@ -104,8 +107,31 @@
         'include': '#attribute'
       }
       {
-        'begin': '(?!<\/(template|deltemplate))(\})'
-        'end': '(\{)(?=\/(?:(template|deltemplate)))'
+        'begin': '(?!<\/(template))(\})'
+        'end': '(\{)(?=\/(?:(template)))'
+        'patterns': [
+          {
+            'include': '#templateContent'
+          }
+        ]
+      }
+    ]
+  'deltemplate':
+    'name': 'template.tag.soy'
+    'begin': '\{(deltemplate)\\s+([\\.\\w]+)'
+    'beginCaptures':
+      '1': 'name': 'storage.type.function.js'
+      '2': 'name': 'entity.name.function.js'
+    'end': '\/(\\1)\}'
+    'endCaptures':
+      '1': 'name': 'storage.type.function.js'
+    'patterns': [
+      {
+        'include': '#attribute'
+      }
+      {
+        'begin': '(?!<\/(deltemplate))(\})'
+        'end': '(\{)(?=\/(?:(deltemplate)))'
         'patterns': [
           {
             'include': '#templateContent'
